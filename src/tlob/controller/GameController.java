@@ -10,6 +10,11 @@ import tlob.model.*;
 import tlob.view.*;
 
 public class GameController implements KeyListener{
+	static enum Commands {
+		LEFT, RIGHT, DOWN, UP,
+		BOMB, ARROW, STAFF,
+		PAUSE, ESCAPE
+	}
 	
 	private boolean rightPressed = false;
 	private boolean leftPressed = false;
@@ -19,6 +24,7 @@ public class GameController implements KeyListener{
 	private boolean fireArrow = false;
 	private boolean setBomb = false;
 	private boolean useStaff = false;
+	
 	private boolean rightPressed2 = false;
 	private boolean leftPressed2 = false;
 	private boolean downPressed2 = false;
@@ -26,14 +32,18 @@ public class GameController implements KeyListener{
 	private boolean fireArrow2 = false;
 	private boolean setBomb2 = false;
 	private boolean useStaff2 = false;
+	
 	private boolean upPressedMenu = false;
 	private boolean downPressedMenu = false;
 	private boolean leftPressedMenu = false;
 	private boolean rightPressedMenu = false;
-	private boolean pausePressed = false;
-	private int w;
 	
-	java.util.Random r=new java.util.Random( ) ;
+	private boolean pausePressed = false;
+	private boolean escapePressed = false;
+	
+	private boolean attributW;
+	
+	java.util.Random r = new java.util.Random( ) ;
 	
 	// 0 = menu, 1 = multi, 2 = solo
 	// 3 game Over, 4 store, 5 gameover, 6 multi win
@@ -55,7 +65,6 @@ public class GameController implements KeyListener{
 	private Level level;
 	private boolean pressedOnce = true; // premiere foi qu on appuie
 	private Sound sound = new Sound();
-	private boolean escapePressed = false;
 	private Map map;
 	
 	public GameController(Level level){
@@ -121,7 +130,7 @@ public class GameController implements KeyListener{
 			pressedOnce = false;
 			soundChange.playSound("menuchange");
 		}
-		else if (upPressedMenu && pressedOnce & statusMenu < 2){
+		else if (upPressedMenu && pressedOnce && statusMenu < 2){
 			for (int i = 0; i<menu.size();i++){
 				if(menu.get(i).getStatus() == statusMenu)
 					menu.get(i).setName("res/2players");
@@ -162,7 +171,7 @@ public class GameController implements KeyListener{
 				sound.soundEnd(sound.getAudioStream());
 				sound.playSound("desert1");
 				soundChoose.playSound("menuchoose");
-				w=0;
+				attributW = false;
 			}
 			level.setStatus(status);
 			enterPressed = false;
@@ -432,10 +441,10 @@ public class GameController implements KeyListener{
 		}
 		
 		for(int t = 0; t < monster.size();t++){
-			if(monster.get(t).getClass() == Boss.class && w == 0){
+			if(monster.get(t).getClass() == Boss.class && attributW == false){
 				sound.soundEnd(sound.getAudioStream());
 				sound.playSound("Boss");
-				w = 1;
+				attributW = true;
 			}
 		}
 
@@ -667,14 +676,14 @@ public class GameController implements KeyListener{
 		Sound soundChange = new Sound();
 		Sound soundChoose = new Sound();
 		
-		if (leftPressedMenu && pressedOnce & statusMenu < 2 ){
-			for (int i = 0; i<gameOver.size();i++){
+		if (leftPressedMenu && pressedOnce && statusMenu < 2){
+			for (int i = 0; i < gameOver.size();i++){
 				if(gameOver.get(i).getStatus() == statusMenu)
 					gameOver.get(i).setName("res/no");		
 				else if(gameOver.get(i).getStatus() == statusMenu + 1)
 					gameOver.get(i).setName("res/yesbombs"); 
 			}
-			statusMenu+=1;
+			statusMenu++;
 			pressedOnce = false;
 			soundChange.playSound("menuchange");
 
@@ -687,7 +696,7 @@ public class GameController implements KeyListener{
 					gameOver.get(i).setName("res/nobombs");  
 
 			}
-			statusMenu-=1;
+			statusMenu--;
 			pressedOnce = false;
 			soundChange.playSound("menuchange");
 
@@ -724,7 +733,7 @@ public class GameController implements KeyListener{
 			sound.playSound("shop");
 		}
 	
-		if (rightPressedMenu && pressedOnce & statusMenu < 6 ){
+		if (rightPressedMenu && pressedOnce && statusMenu < 6 ){
 			store.get(statusMenu).setName("res/store" + statusMenu);
 			store.get(statusMenu+1).setName("res/store" + (statusMenu+1) + "choose");
 			statusMenu++;
@@ -911,63 +920,63 @@ public class GameController implements KeyListener{
 		return false;
 	}
 	
-	private void keyBoolean(int keyCode, boolean v) {
-		
+	private void keyBoolean(int keyCode, boolean value) {
+		if (keyCode == KeyEvent.VK_D)
+	    	rightPressed = value;
+	    
+    	else if(keyCode == KeyEvent.VK_Q)
+    		leftPressed = value;
+	    
+    	else if(keyCode == KeyEvent.VK_ESCAPE) 
+    		escapePressed = value;
+	    
+    	else if(keyCode == KeyEvent.VK_P)
+    		pausePressed = value;
+	   
+    	else if(keyCode == KeyEvent.VK_S)
+    		downPressed = value;
+	    
+    	else if(keyCode == KeyEvent.VK_Z)
+    		upPressed = value;
+	    
+    	else if(keyCode == KeyEvent.VK_UP) {
+    		upPressed2 = value;
+    		upPressedMenu = value;
+    	}
+	    
+    	else if(keyCode == KeyEvent.VK_RIGHT) {
+    		rightPressed2 = value;
+    		rightPressedMenu = value;
+    	}
+	    
+    	else if(keyCode == KeyEvent.VK_LEFT) {
+    		leftPressed2 = value;
+    		leftPressedMenu = value;
+    	}
+	    
+    	else if(keyCode == KeyEvent.VK_DOWN) {
+    		downPressed2 = value;
+    		downPressedMenu = value;
+    	}
 	}
 	
 	@Override
 	public void keyPressed(KeyEvent e) {
 	    int keyCode = e.getKeyCode();
 	    
-	    if (keyCode == KeyEvent.VK_D)
-	    	rightPressed = true;
+	    keyBoolean(keyCode, true);
 	    
-    	else if(keyCode == KeyEvent.VK_Q)
-    		leftPressed = true;
-	    
-    	else if(keyCode == KeyEvent.VK_P)
-    		pausePressed= true;
-	   
-    	else if(keyCode == KeyEvent.VK_S)
-    		downPressed= true;
-	    
-    	else if(keyCode == KeyEvent.VK_Z)
-    		upPressed = true;
-	    
-    	else if (keyCode == KeyEvent.VK_ENTER)
+    	if (keyCode == KeyEvent.VK_ENTER)
     		enterPressed = true;
     	
-    	else if(keyCode == KeyEvent.VK_V)
-    		fireArrow = true;
-	    
     	else if(keyCode == KeyEvent.VK_SPACE)
     		setBomb = true;
 	    
+    	else if(keyCode == KeyEvent.VK_V)
+    		fireArrow = true;
+    	
     	else if(keyCode == KeyEvent.VK_C)
     		useStaff = true;
-	    
-    	else if(keyCode == KeyEvent.VK_ESCAPE) 
-    		escapePressed = true;
-	    
-    	else if(keyCode == KeyEvent.VK_UP) {
-    		upPressed2 = true;
-    		upPressedMenu = true;
-    	}
-	    
-    	else if(keyCode == KeyEvent.VK_RIGHT) {
-    		rightPressed2 = true;
-    		rightPressedMenu = true;
-    	}
-	    
-    	else if(keyCode == KeyEvent.VK_LEFT) {
-    		leftPressed2 = true;
-    		leftPressedMenu = true;
-    	}
-	    
-    	else if(keyCode == KeyEvent.VK_DOWN) {
-    		downPressed2 = true;
-    		downPressedMenu = true;
-    	}
 	    
     	else if(keyCode == KeyEvent.VK_U)
     		setBomb2 = true;
@@ -981,53 +990,9 @@ public class GameController implements KeyListener{
 
 	@Override
 	public void keyReleased(KeyEvent e) {
-		//liste.get(0).setActualFrame(1);
 	    int keyCode = e.getKeyCode();
 	    
-	    if (keyCode == KeyEvent.VK_D){
-	    	rightPressed = false;
-	    }
-	    
-    	else if(keyCode == KeyEvent.VK_Q){
-    		leftPressed = false;
-    	}
-	    
-    	else if(keyCode == KeyEvent.VK_ESCAPE) {
-    		escapePressed = false;
-    	}
-	    
-    	else if(keyCode == KeyEvent.VK_P)
-    		pausePressed = false;
-	    
-    	else if(keyCode == KeyEvent.VK_S) {
-    		downPressed = false;
-    	}
-	    
-    	else if(keyCode == KeyEvent.VK_Z) {
-    		upPressed = false;
-    	}
-	    
-	    if (keyCode == KeyEvent.VK_RIGHT){
-	    	rightPressed2 = false;
-    		rightPressedMenu = false;
-	    }
-	    
-    	else if(keyCode == KeyEvent.VK_LEFT){
-    		leftPressed2 = false;
-    		leftPressedMenu = false;
-    	}
-	    
-    	else if(keyCode == KeyEvent.VK_DOWN) {
-    		downPressed2 = false;
-    		downPressedMenu = false;
-    	}
-	    
-    	else if(keyCode == KeyEvent.VK_UP) {
-    		upPressed2 = false;
-    		upPressedMenu = false;
-    	}
-	    
-		
+	    keyBoolean(keyCode, false);
 	}
 
 	@Override
