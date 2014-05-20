@@ -35,6 +35,10 @@ public class GameController implements KeyListener{
 	
 	java.util.Random r=new java.util.Random( ) ;
 	
+	// 0 = menu, 1 = multi, 2 = solo
+	// 3 game Over, 4 store, 5 gameover, 6 multi win
+	
+	
 	private List<Link> link;
 	private List<Monster> monster;
 	private List<Bomb> bomb;
@@ -46,8 +50,8 @@ public class GameController implements KeyListener{
 	private List<Menu> gameOver;
 	private List<Menu> store;
 	private GameInteraction interaction;
-	private int status = 0; // 0 = menu, 1 = multi, 2 = solo, 3 game Over, 4 store, 5 gameover, 6 multi win
-	private int k = 2; // va modifier le status dans le menu
+	private Status status = Status.MENU;
+	private int statusMenu = 2; // va modifier le status dans le menu
 	private Level level;
 	private boolean pressedOnce = true; // premiere foi qu on appuie
 	private Sound sound = new Sound();
@@ -98,124 +102,404 @@ public class GameController implements KeyListener{
 		this.interaction = interaction;
 	}
 	
-	public void update() {
+	public void updateMenu() {
 		Sound soundChange = new Sound();
 		Sound soundChoose = new Sound();
-		status = level.getStatus();
-		if (status == 0){
+		
+		if(sound.isFinished(sound.getAudioStream()))
+		{
+			sound.playSound("menu");
+		}
+		if (downPressedMenu && pressedOnce && statusMenu > 1 ){
+			for (int i = 0; i<menu.size();i++){
+				if(menu.get(i).getStatus() == statusMenu)
+					menu.get(i).setName("res/1player");
+				else if(menu.get(i).getStatus() == statusMenu - 1)
+					menu.get(i).setName("res/2playersbombs");
+			}
+			statusMenu -= 1;
+			pressedOnce = false;
+			soundChange.playSound("menuchange");
+		}
+		else if (upPressedMenu && pressedOnce & statusMenu < 2){
+			for (int i = 0; i<menu.size();i++){
+				if(menu.get(i).getStatus() == statusMenu)
+					menu.get(i).setName("res/2players");
+				else if(menu.get(i).getStatus() == statusMenu + 1)
+					menu.get(i).setName("res/1playerbombs");
+
+			}
+			statusMenu += 1;
+			pressedOnce = false;
+			soundChange.playSound("menuchange");
+
+		}
+		else if (!downPressedMenu && !upPressedMenu && !enterPressed){
+			pressedOnce = true;
+		}
+		
+		else if (enterPressed && pressedOnce){ // lance le solo
+			status = Status.values()[statusMenu];
+			deleteCopy();
+			if(status == Status.MULTI){
+				Map map = new Map(16,16,"0","0","0");
+				map.setEnvironment("/Forest");
+				level.createLevel(map);
+				createGameController(level);
+				link.add(new Link(3,1*40,1*40,2,1,"res/Link/LinkRun",0));
+				link.add(new Link(3,13*40,13*40,2,0,"res/RedLink/RedLinkRun",1));
+				sound.soundEnd(sound.getAudioStream());
+				sound.playSound("forest1");
+				soundChoose.playSound("menuchoose");
+
+			}
+			else{
+				Map map = new Map(16,16,"1","3","1");
+				level.createLevel(map);
+				createGameController(level);
+				link.add(new Link(3,7*40,13*40,3,2,"res/Link/LinkRun",0));
+
+				sound.soundEnd(sound.getAudioStream());
+				sound.playSound("desert1");
+				soundChoose.playSound("menuchoose");
+				w=0;
+			}
+			level.setStatus(status);
+			enterPressed = false;
+			statusMenu=1;
+
+		}
+	}
+	
+	public void updateMulti() {
+		if(sound.isFinished(sound.getAudioStream()))
+		{
+			int random = r.nextInt(2);
+			if (random == 0){
+				sound.playSound("forest1");
+			}
+			else if(random == 1){
+				sound.playSound("forest2");
+			}
+		}
+		
+
+		
+		for(int i = 0; i < link.size(); i++){
 			
-			if(sound.isFinished(sound.getAudioStream()))
-			{
-				sound.playSound("menu");
-			}
-			if (downPressedMenu && pressedOnce && k > 1 ){
-				for (int i = 0; i<menu.size();i++){
-					if(menu.get(i).getStatus() == k)
-						menu.get(i).setName("res/1player");
-					else if(menu.get(i).getStatus() == k - 1)
-						menu.get(i).setName("res/2playersbombs");
-				}
-				k-=1;
-				pressedOnce = false;
-				soundChange.playSound("menuchange");
-			}
-			else if (upPressedMenu && pressedOnce & k < 2){
-				for (int i = 0; i<menu.size();i++){
-					if(menu.get(i).getStatus() == k)
-						menu.get(i).setName("res/2players");
-					else if(menu.get(i).getStatus() == k + 1)
-						menu.get(i).setName("res/1playerbombs");
-
-				}
-				k+=1;
-				pressedOnce = false;
-				soundChange.playSound("menuchange");
-
-			}
-			else if (!downPressedMenu && !upPressedMenu && !enterPressed){
-				pressedOnce = true;
+			if(link.get(i).getLifePoint() <= 0){
+				status = Status.MULTI_WIN;
+				level.setStatus(status);
+				sound.soundEnd(sound.getAudioStream());
+				sound.playSound("multigameover");
+				break;
 			}
 			
-			else if (enterPressed && pressedOnce){ // lance le solo
-				status = k;
-				deleteCopy();
-				if(status == 1){
-					Map map = new Map(16,16,"0","0","0");
-					map.setEnvironment("/Forest");
-					level.createLevel(map);
-					createGameController(level);
-					link.add(new Link(3,1*40,1*40,2,1,"res/Link/LinkRun",0));
-					link.add(new Link(3,13*40,13*40,2,0,"res/RedLink/RedLinkRun",1));
-					sound.soundEnd(sound.getAudioStream());
-					sound.playSound("forest1");
-					soundChoose.playSound("menuchoose");
+			//link.get(i).setSpeed(1);
+			
+			if(link.get(i).getInvincible() == 0){
+				link.get(i).tickInvincible();
+			}
+		
+			interaction.linkInteraction(link.get(i));
 
+			if(rightPressed){
+				link.get(0).setName("res/Link/LinkRun");
+				link.get(0).moveRight();
+			
+			}
+			if(leftPressed){
+				link.get(0).setName("res/Link/LinkRun");
+				link.get(0).moveLeft();
+			}
+		
+			if(downPressed){
+				link.get(0).setName("res/Link/LinkRun");
+				link.get(0).moveDown();
+			}
+		
+			if(upPressed){
+				link.get(0).setName("res/Link/LinkRun");
+				link.get(0).moveUp();
+			}
+		
+			if(fireArrow){
+				link.get(0).fireArrow(arrow);
+				if(link.get(0).getActualFrame() == 6){
+					fireArrow = false;
+					link.get(0).setActualFrame(1);
+				}
+			}
+			if(setBomb){
+				int bomb0 = 0;
+				for(Bomb b : bomb){
+					if(b.getPlayer() == 0){
+						bomb0++;
+					}
+				}
+				if(bomb0< link.get(0).getNumberBomb()){
+					link.get(0).setBomb(bomb);				
+				}
+				setBomb = false;
+			}
+			if(useStaff==true && link.get(0).getStaff()!=-1) {
+				if(link.get(0).getStaff()==0) {
+					link.get(1).getDamage(1);			
+					useStaff=false; 
+					link.get(0).setStaff(-1); 
+				}
+				else if(link.get(0).getStaff()==1) {
+						link.get(1).setFrozen();
+						link.get(1).tickFrozen();	
+						if(link.get(1).getFrozen()==1) {
+							useStaff=false; 
+							link.get(0).setStaff(-1); 
+						}
+				
+			}
+		}
+			else {
+				useStaff = false;
+			}
+		
+			if(rightPressed2){
+				link.get(1).setName("res/RedLink/RedLinkRun");
+				link.get(1).moveRight();
+			
+			}
+			if(leftPressed2){
+				link.get(1).setName("res/RedLink/RedLinkRun");
+				link.get(1).moveLeft();
+			}
+		
+			if(downPressed2){
+				link.get(1).setName("res/RedLink/RedLinkRun");
+				link.get(1).moveDown();
+			}
+		
+			if(upPressed2){
+				link.get(1).setName("res/RedLink/RedLinkRun");
+				link.get(1).moveUp();
+			}
+		
+			if(fireArrow2){
+				link.get(1).fireArrow(arrow);
+				if(link.get(1).getActualFrame() == 6){
+					fireArrow2 = false;
+					link.get(1).setActualFrame(1);
+				}
+			}
+			if(setBomb2){
+				int bomb1 = 0;
+				for(Bomb b : bomb){
+					if(b.getPlayer() == 1){
+						bomb1++;
+					}
+				}
+				if(bomb1< link.get(1).getNumberBomb()){
+					link.get(1).setBomb(bomb);				
+				}
+				setBomb2 = false;
+			}
+			
+			if(useStaff2==true && link.get(1).getStaff()!=-1) {
+				if(link.get(1).getStaff()==0) {
+					link.get(0).getDamage(1);
+					useStaff2=false; 
+					link.get(1).setStaff(-1); 
+				}
+				else if(link.get(1).getStaff()==1) {
+						link.get(0).setFrozen();
+						link.get(0).tickFrozen();
+						if(link.get(0).getFrozen()==1) {
+							useStaff2=false; 
+							link.get(1).setStaff(-1); 
+						}
+				}
+			}
+			
+			else {
+				useStaff2 = false;
+			}
+			
+			interaction.linkInteraction(link.get(i));
+	}
+
+		if(arrow.size()>0){
+			for(int p = 0; p < arrow.size(); p++){
+				int a = interaction.arrowInteraction(arrow.get(p));
+				if(a != 0){
+					if(a == 2){
+						arrow.get(p).tick(5);
+						//arrow.get(p).setActualFrame(1);
+						if(arrow.get(p).getTime() == 3){
+							arrow.remove(p);
+						}
+					}
+					else{
+						arrow.remove(p);
+					}
+				}
+			}
+		}
+
+		if(bomb.size()>0){
+			for(int p = 0; p < bomb.size(); p++){
+				interaction.bombInteraction(bomb.get(p));
+				bomb.get(p).tick();
+				if(bomb.get(p).getTime() == 15){ //changer dans deflagration si changement de temps
+					bombDeflagration.add(new BombDeflagration(bomb.get(p).getXPos(),bomb.get(p).getYPos(),
+							"res/Deflagration",bomb.get(p).getPlayer()));
+					bomb.remove(p);
+					Sound soundBomb = new Sound();
+					soundBomb.playSound("bomb");
+				}
+			}
+		}
+		if(bombDeflagration.size()>0){
+			for(int p = 0; p < bombDeflagration.size(); p++){
+				bombDeflagration.get(p).tick(2);
+				if(bombDeflagration.get(p).getPortee() < link.get(bombDeflagration.get(p).getPlayer()).getRangeBomb()*4+2){
+					interaction.deflagrationAppear(bombDeflagration.get(p),
+							link.get(bombDeflagration.get(p).getPlayer()).getRangeBomb());
+					interaction.defInteraction(bombDeflagration.get(p));
 				}
 				else{
-					Map map = new Map(16,16,"1","3","1");
-					level.createLevel(map);
-					createGameController(level);
-					link.add(new Link(3,7*40,13*40,3,2,"res/Link/LinkRun",0));
-
-					sound.soundEnd(sound.getAudioStream());
-					sound.playSound("desert1");
-					soundChoose.playSound("menuchoose");
-					w=0;
+					bombDeflagration.remove(p);
 				}
-				level.setStatus(status);
-				enterPressed = false;
-				k=1;
-
+			}
+		}
+	}
+	
+	public void updateSolo() {
+		Sound soundChange = new Sound();
+		
+		// /!\ il faut reinitialise le k avant de lancer le shop
+		if (pausePressed && pressedOnce){
+			status = Status.GAME_OVER;
+			level.setStatus(status);
+			pressedOnce = false;
+		}
+		
+		else if (!pausePressed){
+			pressedOnce = true;
+		}
+					
+		if (gameOver(link.get(0))){
+			status = Status.GAME_OVER;
+			level.setStatus(status);
+			enterPressed = false;
+			fireArrow = false;
+			sound.soundEnd(sound.getAudioStream());
+			sound.playSound("gameOver");
+			statusMenu = 2;
+		}
+		
+		if(interaction.getChestOpen() == true){
+			interaction.setChestOpen(false);
+			soundChange.playSound("treasure");
+		}
+		
+		for (int i =0;i<level.getDecor().size();i++){
+			if(map.getRoomColumn().contentEquals("2")  && map.getLevel().contentEquals("2") && map.getRoomLine().contentEquals("2")){
+				if(level.getDecor().get(i).getClass() == Door.class){
+					((Door)(level.getDecor().get(i))).setOpen(false);
+					level.getDecor().get(i).setName("res/Desert/Obstacle3");
+				}					
 			}
 		}
 		
-		else if (status == 6){
-			if (!enterPressed){
-				pressedOnce = true;
-				
+		if (monster.size() == 0){
+			for (int i =0;i<level.getDecor().size();i++){
+				if(level.getDecor().get(i).getClass() == Door.class){
+					((Door)(level.getDecor().get(i))).setOpen(true);
+					if(((Door)level.getDecor().get(i)).getLine() == 1){
+						level.getDecor().get(i).setName("res" + map.getEnvironment() +"/DoorU");
+					}
+					if(((Door)level.getDecor().get(i)).getLevel() == 1){
+						level.getDecor().get(i).setName("res" + map.getEnvironment() + "/DoorR");
+					}
+				}				
 			}
-			else if (enterPressed && pressedOnce){
-				status = 0;
-				k = 2;
+		}
+		for(int t = 0; t < monster.size();t++){
+			if(monster.get(t).getClass() == Boss.class && monster.get(t).getLifePoint() <= 0){
+				status = Status.MULTI_WIN;
 				level.setStatus(status);
-				enterPressed = false;
-				menu.get(2).setName("res/2players");
-				menu.get(1).setName("res/1playerbombs");
 				sound.soundEnd(sound.getAudioStream());
-				sound.playSound("menu");
+				sound.playSound("endgame");
+			}
+		}
+		
+		for(int t = 0; t < monster.size();t++){
+			if(monster.get(t).getClass() == Boss.class && w == 0){
+				sound.soundEnd(sound.getAudioStream());
+				sound.playSound("Boss");
+				w = 1;
+			}
+		}
+
+		for (int p = 0; p < level.getDecor().size(); p ++){
+			if(level.getDecor().get(p).getClass() == SpawnerMonster.class){
+				((SpawnerMonster)(level.getDecor().get(p))).spawnMonster(level.getMonster());	
+			}
+			if(level.getDecor().get(p).getClass() == SpawnerFireBall.class){
+				((SpawnerFireBall)(level.getDecor().get(p))).fireBall(fireBall, link.get(0));
 			}
 			
 		}
 		
-		else if (status == 1){
-			
-			// mode multi
+		if(interaction.getChangeLevel() == true)
+		{
+			sound.soundEnd(sound.getAudioStream());
+			statusMenu = 1;
+			status = Status.STORE;
+			level.setStatus(status);
+			interaction.setChangeLevel(false);
+			sound.playSound("shop");
+		}
+		else{
 			if(sound.isFinished(sound.getAudioStream()))
-			{
-				int random = r.nextInt(2);
-				if (random == 0){
-					sound.playSound("forest1");
+			{	
+				for(int i = 0;i<monster.size();i++){
+					if(monster.get(i).getClass() == Boss.class){
+						sound.playSound("Boss");
+						break;
+					}
 				}
-				else if(random == 1){
-					sound.playSound("forest2");
+						
+				 if (map.getEnvironment() == "/Desert"){
+					int random = r.nextInt(2);
+					if (random == 0){
+						sound.playSound("desert");
+					}
+					else if(random == 1){
+						sound.playSound("desert1");
+					}
+				}
+				else if (map.getEnvironment() == "/Forest"){
+					int random = r.nextInt(2);
+					if (random == 0){
+						sound.playSound("forest1");
+					}
+					else if(random == 1){
+						sound.playSound("forest2");
+				}
+				}
+				else if (map.getEnvironment().contentEquals("/Dungeon")){
+					int random = r.nextInt(2);
+					if (random == 0){
+						sound.playSound("dungeon");
+					}
+						else if(random == 1){
+						sound.playSound("dungeon1");
+					}
 				}
 			}
-			
-
+		
 			
 			for(int i = 0; i < link.size(); i++){
-				
-				
-				if(link.get(i).getLifePoint() <= 0){
-					status=6;
-					level.setStatus(status);
-					sound.soundEnd(sound.getAudioStream());
-					sound.playSound("multigameover");
-					break;
-				}
-				
-				//link.get(i).setSpeed(1);
-				
+						
 				if(link.get(i).getInvincible() == 0){
 					link.get(i).tickInvincible();
 				}
@@ -241,7 +525,7 @@ public class GameController implements KeyListener{
 					link.get(0).setName("res/Link/LinkRun");
 					link.get(0).moveUp();
 				}
-			
+				
 				if(fireArrow){
 					link.get(0).fireArrow(arrow);
 					if(link.get(0).getActualFrame() == 6){
@@ -261,88 +545,46 @@ public class GameController implements KeyListener{
 					}
 					setBomb = false;
 				}
-				if(useStaff==true && link.get(0).getStaff()!=-1) {
+				if(useStaff && link.get(0).getStaff() != -1) {
 					if(link.get(0).getStaff()==0) {
-						link.get(1).getDamage(1);			
+						for (Monster m : monster) {
+							m.getDamage(1);			
+						}
 						useStaff=false; 
 						link.get(0).setStaff(-1); 
 					}
 					else if(link.get(0).getStaff()==1) {
-							link.get(1).setFrozen();
-							link.get(1).tickFrozen();	
-							if(link.get(1).getFrozen()==1) {
+						for (Monster m : monster) {
+							m.setFrozen();
+							m.tickFrozen();	
+							if(m.getFrozen()==1) {
 								useStaff=false; 
 								link.get(0).setStaff(-1); 
 							}
-					
+					}
 				}
 			}
 				else {
 					useStaff = false;
 				}
-			
-				if(rightPressed2){
-					link.get(1).setName("res/RedLink/RedLinkRun");
-					link.get(1).moveRight();
-				
-				}
-				if(leftPressed2){
-					link.get(1).setName("res/RedLink/RedLinkRun");
-					link.get(1).moveLeft();
-				}
-			
-				if(downPressed2){
-					link.get(1).setName("res/RedLink/RedLinkRun");
-					link.get(1).moveDown();
-				}
-			
-				if(upPressed2){
-					link.get(1).setName("res/RedLink/RedLinkRun");
-					link.get(1).moveUp();
-				}
-			
-				if(fireArrow2){
-					link.get(1).fireArrow(arrow);
-					if(link.get(1).getActualFrame() == 6){
-						fireArrow2 = false;
-						link.get(1).setActualFrame(1);
-					}
-				}
-				if(setBomb2){
-					int bomb1 = 0;
-					for(Bomb b : bomb){
-						if(b.getPlayer() == 1){
-							bomb1++;
+		}
+		
+		
+			if(monster.size() > 0){
+				for(int i = 0; i < monster.size(); i++){
+					if(monster.get(i).getInvincible() == 0 && monster.get(i).getClass() != MovingTrap.class){
+						if((monster.get(i).getClass() == Underground.class && ((Underground) monster.get(i)).getUnderground() == true)){
+						}
+						else{
+							monster.get(i).tickInvincible();
 						}
 					}
-					if(bomb1< link.get(1).getNumberBomb()){
-						link.get(1).setBomb(bomb);				
-					}
-					setBomb2 = false;
-				}
-				
-				if(useStaff2==true && link.get(1).getStaff()!=-1) {
-					if(link.get(1).getStaff()==0) {
-						link.get(0).getDamage(1);
-						useStaff2=false; 
-						link.get(1).setStaff(-1); 
-					}
-					else if(link.get(1).getStaff()==1) {
-							link.get(0).setFrozen();
-							link.get(0).tickFrozen();
-							if(link.get(0).getFrozen()==1) {
-								useStaff2=false; 
-								link.get(1).setStaff(-1); 
-							}
+					interaction.monsterInteraction(monster.get(i));
+					if(monster.get(i).getLifePoint() == 0){
+						monster.remove(i);
 					}
 				}
-				
-				else {
-					useStaff2 = false;
-				}
-				
-				interaction.linkInteraction(link.get(i));
-		}
+			}	
 
 			if(arrow.size()>0){
 				for(int p = 0; p < arrow.size(); p++){
@@ -367,8 +609,8 @@ public class GameController implements KeyListener{
 					interaction.bombInteraction(bomb.get(p));
 					bomb.get(p).tick();
 					if(bomb.get(p).getTime() == 15){ //changer dans deflagration si changement de temps
-						bombDeflagration.add(new BombDeflagration(bomb.get(p).getXPos(),bomb.get(p).getYPos(),
-								"res/Deflagration",bomb.get(p).getPlayer()));
+						bombDeflagration.add(new BombDeflagration(bomb.get(p).getXPos(),
+								bomb.get(p).getYPos(),"res/Deflagration",bomb.get(p).getPlayer()));
 						bomb.remove(p);
 						Sound soundBomb = new Sound();
 						soundBomb.playSound("bomb");
@@ -378,540 +620,275 @@ public class GameController implements KeyListener{
 			if(bombDeflagration.size()>0){
 				for(int p = 0; p < bombDeflagration.size(); p++){
 					bombDeflagration.get(p).tick(2);
-					if(bombDeflagration.get(p).getPortee() < link.get(bombDeflagration.get(p).getPlayer()).getRangeBomb()*4+2){
-						interaction.deflagrationAppear(bombDeflagration.get(p),
-								link.get(bombDeflagration.get(p).getPlayer()).getRangeBomb());
-						interaction.defInteraction(bombDeflagration.get(p));
-					}
-					else{
-						bombDeflagration.remove(p);
-					}
-				}
-			}
-			
-
-			
-		}
-	
-		else if(status == 5){
-			if (pausePressed && pressedOnce){
-				status = 2;
-				level.setStatus(status);
-				pressedOnce = false;
-			}
-			else if (!pausePressed && !escapePressed){
-				pressedOnce = true;
-			}
-			
-			else if(escapePressed && pressedOnce)
-			{
-				sound.soundEnd(sound.getAudioStream());
-				sound.playSound("menu");
-				status = 0;
-				k =2;
-				level.setStatus(status);
-				pressedOnce = false;
-			}
-
-		}
-		
-		else if(status == 2){
-			if (pausePressed && pressedOnce){
-				status = 5;
-				level.setStatus(status);
-				pressedOnce = false;
-			}
-			
-			else if (!pausePressed){
-				pressedOnce = true;
-			}
-						
-			if (gameOver(link.get(0))){
-				status = 3;
-				level.setStatus(status);
-				enterPressed = false;
-				fireArrow = false;
-				sound.soundEnd(sound.getAudioStream());
-				sound.playSound("gameOver");
-				k = 2;
-			}
-			
-			if(interaction.getChestOpen() == true){
-				interaction.setChestOpen(false);
-				soundChange.playSound("treasure");
-			}
-			
-			for (int i =0;i<level.getDecor().size();i++){
-				if(map.getRoomColumn().contentEquals("2")  && map.getLevel().contentEquals("2") && map.getRoomLine().contentEquals("2")){
-					if(level.getDecor().get(i).getClass() == Door.class){
-						((Door)(level.getDecor().get(i))).setOpen(false);
-						level.getDecor().get(i).setName("res/Desert/Obstacle3");
-					}					
-				}
-			}
-			
-			if (monster.size() == 0){
-				for (int i =0;i<level.getDecor().size();i++){
-					if(level.getDecor().get(i).getClass() == Door.class){
-						((Door)(level.getDecor().get(i))).setOpen(true);
-						if(((Door)level.getDecor().get(i)).getLine() == 1){
-							level.getDecor().get(i).setName("res" + map.getEnvironment() +"/DoorU");
-						}
-						if(((Door)level.getDecor().get(i)).getLevel() == 1){
-							level.getDecor().get(i).setName("res" + map.getEnvironment() + "/DoorR");
-						}
-					}				
-				}
-			}
-			for(int t = 0; t < monster.size();t++){
-				if(monster.get(t).getClass() == Boss.class && monster.get(t).getLifePoint() <= 0){
-					status = 6;
-					level.setStatus(status);
-					sound.soundEnd(sound.getAudioStream());
-					sound.playSound("endgame");
-				}
-			}
-			
-			for(int t = 0; t < monster.size();t++){
-				if(monster.get(t).getClass() == Boss.class && w == 0){
-					sound.soundEnd(sound.getAudioStream());
-					sound.playSound("Boss");
-					w = 1;
-				}
-			}
-
-			for (int p = 0; p < level.getDecor().size(); p ++){
-				if(level.getDecor().get(p).getClass() == SpawnerMonster.class){
-					((SpawnerMonster)(level.getDecor().get(p))).spawnMonster(level.getMonster());	
-				}
-				if(level.getDecor().get(p).getClass() == SpawnerFireBall.class){
-					((SpawnerFireBall)(level.getDecor().get(p))).fireBall(fireBall, link.get(0));
-				}
-				
-			}
-			
-			if(interaction.getChangeLevel() == true)
-			{
-				sound.soundEnd(sound.getAudioStream());
-				k = 1;
-				status = 4;
-				level.setStatus(status);
-				interaction.setChangeLevel(false);
-				sound.playSound("shop");
-			}
-			else{
-				if(sound.isFinished(sound.getAudioStream()))
-				{	
-					for(int i = 0;i<monster.size();i++){
-						if(monster.get(i).getClass() == Boss.class){
-							sound.playSound("Boss");
-							break;
-						}
-					}
-							
-					 if (map.getEnvironment() == "/Desert"){
-						int random = r.nextInt(2);
-						if (random == 0){
-							sound.playSound("desert");
-						}
-						else if(random == 1){
-							sound.playSound("desert1");
-						}
-					}
-					else if (map.getEnvironment() == "/Forest"){
-						int random = r.nextInt(2);
-						if (random == 0){
-							sound.playSound("forest1");
-						}
-						else if(random == 1){
-							sound.playSound("forest2");
-					}
-					}
-					else if (map.getEnvironment().contentEquals("/Dungeon")){
-						int random = r.nextInt(2);
-						if (random == 0){
-							sound.playSound("dungeon");
-						}
-							else if(random == 1){
-							sound.playSound("dungeon1");
-						}
-					}
-				}
-			
-				
-				for(int i = 0; i < link.size(); i++){
-							
-					if(link.get(i).getInvincible() == 0){
-						link.get(i).tickInvincible();
-					}
-				
-					interaction.linkInteraction(link.get(i));
-	
-					if(rightPressed){
-						link.get(0).setName("res/Link/LinkRun");
-						link.get(0).moveRight();
-					
-					}
-					if(leftPressed){
-						link.get(0).setName("res/Link/LinkRun");
-						link.get(0).moveLeft();
-					}
-				
-					if(downPressed){
-						link.get(0).setName("res/Link/LinkRun");
-						link.get(0).moveDown();
-					}
-				
-					if(upPressed){
-						link.get(0).setName("res/Link/LinkRun");
-						link.get(0).moveUp();
-					}
-				
-					if(fireArrow){
-						link.get(0).fireArrow(arrow);
-						if(link.get(0).getActualFrame() == 6){
-							fireArrow = false;
-							link.get(0).setActualFrame(1);
-						}
-					}
-					if(setBomb){
-						int bomb0 = 0;
-						for(Bomb b : bomb){
-							if(b.getPlayer() == 0){
-								bomb0++;
-							}
-						}
-						if(bomb0< link.get(0).getNumberBomb()){
-							link.get(0).setBomb(bomb);				
-						}
-						setBomb = false;
-					}
-					if(useStaff==true && link.get(0).getStaff()!=-1) {
-						if(link.get(0).getStaff()==0) {
-							for (Monster m : monster) {
-								m.getDamage(1);			
-							}
-							useStaff=false; 
-							link.get(0).setStaff(-1); 
-						}
-						else if(link.get(0).getStaff()==1) {
-							for (Monster m : monster) {
-								m.setFrozen();
-								m.tickFrozen();	
-								if(m.getFrozen()==1) {
-									useStaff=false; 
-									link.get(0).setStaff(-1); 
-								}
-						}
-					}
-				}
-					else {
-						useStaff = false;
-					}
-			}
-			
-			
-				if(monster.size() > 0){
-					for(int i = 0; i < monster.size(); i++){
-						if(monster.get(i).getInvincible() == 0 && monster.get(i).getClass() != MovingTrap.class){
-							if((monster.get(i).getClass() == Underground.class && ((Underground) monster.get(i)).getUnderground() == true)){
-							}
-							else{
-								monster.get(i).tickInvincible();
-							}
-						}
-						interaction.monsterInteraction(monster.get(i));
-						if(monster.get(i).getLifePoint() == 0){
-							monster.remove(i);
-						}
-					}
-				}	
-	
-				if(arrow.size()>0){
-					for(int p = 0; p < arrow.size(); p++){
-						int a = interaction.arrowInteraction(arrow.get(p));
-						if(a != 0){
-							if(a == 2){
-								arrow.get(p).tick(5);
-								//arrow.get(p).setActualFrame(1);
-								if(arrow.get(p).getTime() == 3){
-									arrow.remove(p);
-								}
-							}
-							else{
-								arrow.remove(p);
-							}
-						}
-					}
-				}
-		
-				if(bomb.size()>0){
-					for(int p = 0; p < bomb.size(); p++){
-						interaction.bombInteraction(bomb.get(p));
-						bomb.get(p).tick();
-						if(bomb.get(p).getTime() == 15){ //changer dans deflagration si changement de temps
-							bombDeflagration.add(new BombDeflagration(bomb.get(p).getXPos(),
-									bomb.get(p).getYPos(),"res/Deflagration",bomb.get(p).getPlayer()));
-							bomb.remove(p);
-							Sound soundBomb = new Sound();
-							soundBomb.playSound("bomb");
-						}
-					}
-				}
-				if(bombDeflagration.size()>0){
-					for(int p = 0; p < bombDeflagration.size(); p++){
-						bombDeflagration.get(p).tick(2);
-						if(bombDeflagration.get(p).getPlayer() == -1){
-							if(bombDeflagration.get(p).getPortee() < 2*4+2){
-								interaction.deflagrationAppear(bombDeflagration.get(p), 2);
-								interaction.defInteraction(bombDeflagration.get(p));
-							}
-							else{
-								bombDeflagration.remove(p);
-							}
+					if(bombDeflagration.get(p).getPlayer() == -1){
+						if(bombDeflagration.get(p).getPortee() < 2*4+2){
+							interaction.deflagrationAppear(bombDeflagration.get(p), 2);
+							interaction.defInteraction(bombDeflagration.get(p));
 						}
 						else{
-							if(bombDeflagration.get(p).getPortee() < link.get(bombDeflagration.get(p).getPlayer())
-									.getRangeBomb()*4+2){
-								interaction.deflagrationAppear(bombDeflagration.get(p), 
-										link.get(bombDeflagration.get(p).getPlayer()).getRangeBomb());
-								interaction.defInteraction(bombDeflagration.get(p));
-							}
-							else{
-								bombDeflagration.remove(p);
-							}
+							bombDeflagration.remove(p);
+						}
+					}
+					else{
+						if(bombDeflagration.get(p).getPortee() < link.get(bombDeflagration.get(p).getPlayer())
+								.getRangeBomb()*4+2){
+							interaction.deflagrationAppear(bombDeflagration.get(p), 
+									link.get(bombDeflagration.get(p).getPlayer()).getRangeBomb());
+							interaction.defInteraction(bombDeflagration.get(p));
+						}
+						else{
+							bombDeflagration.remove(p);
 						}
 					}
 				}
-				
-				if(fireBall.size()>0){
-					for(int p = 0; p < fireBall.size(); p++){
-						fireBall.get(p).tick();
-						interaction.fireBallInteraction(fireBall.get(p));
-							if(fireBall.get(p).getList().size() < fireBall.get(p).getPos()-1){
-								fireBall.remove(p);
-							}
-					}
-				}
-				if(thunder.size()>0){
-					for(int p = 0; p < thunder.size(); p++){
-						interaction.thunderInteraction(thunder.get(p));
-						if(thunder.get(p).getTickThunder() == 100){
-							thunder.remove(p);
+			}
+			
+			if(fireBall.size()>0){
+				for(int p = 0; p < fireBall.size(); p++){
+					fireBall.get(p).tick();
+					interaction.fireBallInteraction(fireBall.get(p));
+						if(fireBall.get(p).getList().size() < fireBall.get(p).getPos()-1){
+							fireBall.remove(p);
 						}
+				}
+			}
+			if(thunder.size()>0){
+				for(int p = 0; p < thunder.size(); p++){
+					interaction.thunderInteraction(thunder.get(p));
+					if(thunder.get(p).getTickThunder() == 100){
+						thunder.remove(p);
 					}
 				}
 			}
 		}
-		else if(status == 3){
+	}
+	
+	public void updateGameOver() {
+		Sound soundChange = new Sound();
+		Sound soundChoose = new Sound();
+		
+		if (leftPressedMenu && pressedOnce & statusMenu < 2 ){
+			for (int i = 0; i<gameOver.size();i++){
+				if(gameOver.get(i).getStatus() == statusMenu)
+					gameOver.get(i).setName("res/no");		
+				else if(gameOver.get(i).getStatus() == statusMenu + 1)
+					gameOver.get(i).setName("res/yesbombs"); 
+			}
+			statusMenu+=1;
+			pressedOnce = false;
+			soundChange.playSound("menuchange");
+
+		}
+		else if (rightPressedMenu && pressedOnce && statusMenu > 1){
+			for (int i = 0; i<gameOver.size();i++){
+				if(gameOver.get(i).getStatus() == statusMenu)
+					gameOver.get(i).setName("res/yes");	
+				else if(gameOver.get(i).getStatus() == statusMenu - 1)
+					gameOver.get(i).setName("res/nobombs");  
+
+			}
+			statusMenu-=1;
+			pressedOnce = false;
+			soundChange.playSound("menuchange");
+
+
+		}
+		else if (!leftPressedMenu && !rightPressedMenu && !enterPressed){
+			pressedOnce = true;
+		}
+		
+		else if (enterPressed && pressedOnce){ 
+			soundChoose.playSound("menuchoose");
+			deleteCopy();
+			if (statusMenu == 2){
+				status = Status.MENU;
+				sound.soundEnd(sound.getAudioStream());
+				sound.soundEnd(sound.getAudioStream());
+				sound.playSound("menu");
+				level.setStatus(status);
+			}
+			else if (statusMenu == 1){ // ferme lapplication
+				System.exit(-1);
+			}
 			
-			if (leftPressedMenu && pressedOnce & k < 2 ){
-				for (int i = 0; i<gameOver.size();i++){
-					if(gameOver.get(i).getStatus() == k)
-						gameOver.get(i).setName("res/no");		
-					else if(gameOver.get(i).getStatus() == k + 1)
-						gameOver.get(i).setName("res/yesbombs"); 
-				}
-				k+=1;
-				pressedOnce = false;
-				soundChange.playSound("menuchange");
-
-			}
-			else if (rightPressedMenu && pressedOnce && k > 1){
-				for (int i = 0; i<gameOver.size();i++){
-					if(gameOver.get(i).getStatus() == k)
-						gameOver.get(i).setName("res/yes");	
-					else if(gameOver.get(i).getStatus() == k - 1)
-						gameOver.get(i).setName("res/nobombs");  
-
-				}
-				k-=1;
-				pressedOnce = false;
-				soundChange.playSound("menuchange");
-
-
-			}
-			else if (!leftPressedMenu && !rightPressedMenu && !enterPressed){
-				pressedOnce = true;
-			}
+			enterPressed = false;
+		}
+	}
+	
+	public void updateStore() {
+		Sound soundChange = new Sound();
+		Sound soundChoose = new Sound();
+		
+		if(sound.isFinished(sound.getAudioStream()))
+		{
+			sound.playSound("shop");
+		}
+	
+		if (rightPressedMenu && pressedOnce & statusMenu < 6 ){
+			store.get(statusMenu).setName("res/store" + statusMenu);
+			store.get(statusMenu+1).setName("res/store" + (statusMenu+1) + "choose");
+			statusMenu++;
+			pressedOnce = false;
+			soundChange.playSound("menuchange");
+		}
+		
+		else if (leftPressedMenu && pressedOnce && statusMenu > 1){
+			store.get(statusMenu).setName("res/store" + statusMenu);
+			store.get(statusMenu-1).setName("res/store" + (statusMenu-1) + "choose");
+			statusMenu--;
+			pressedOnce = false;
+			soundChange.playSound("menuchange");
+		}
+		else if (!leftPressedMenu && !rightPressedMenu && !enterPressed){
+			pressedOnce = true;
+		}
 			
-			else if (enterPressed && pressedOnce){ 
+		else if (enterPressed && pressedOnce){
+			
+			switch (statusMenu){
+			case(1): // fleche
+				if(link.get(0).getNumberCoin() - 10 >= 0 && link.get(0).getNumberArrow()<99){
+					link.get(0).setNumberCoin(link.get(0).getNumberCoin() - 10);
+					link.get(0).setNumberArrow(link.get(0).getNumberArrow() + 1);
+					soundChange.playSound("shopbuy");
+					soundChange.playSound("rupee");
+				}	
+				else
+					soundChange.playSound("shopcantbuy");
+				break;
+			
+			case(2): //bombrange
+				if(link.get(0).getNumberCoin() - 10 >= 0 && link.get(0).getRangeBomb()<9){
+					link.get(0).setNumberCoin(link.get(0).getNumberCoin() - 30);
+					link.get(0).setRangeBomb(link.get(0).getRangeBomb() + 1);
+					soundChange.playSound("shopbuy");
+					soundChange.playSound("rupee");
+					}	
+				else
+					soundChange.playSound("shopcantbuy");
+				break;
+				
+			case(3): // bomb
+				if(link.get(0).getNumberCoin() - 10 >= 0 && link.get(0).getNumberBomb()<9){
+					link.get(0).setNumberCoin(link.get(0).getNumberCoin() - 30);
+					link.get(0).setNumberBomb(link.get(0).getNumberBomb()+1);
+					soundChange.playSound("shopbuy");
+					soundChange.playSound("rupee");
+
+				}	
+				else
+					soundChange.playSound("shopcantbuy");
+					break;
+			
+			case(4)://speed
+				if(link.get(0).getNumberCoin() - 10 >= 0 && link.get(0).getSpeed()<6){
+					link.get(0).setNumberCoin(link.get(0).getNumberCoin() - 50);
+					link.get(0).setSpeed(link.get(0).getSpeed()+1);
+					soundChange.playSound("shopbuy");
+					soundChange.playSound("rupee");
+					}	
+				else
+					soundChange.playSound("shopcantbuy");
+					break;
+			
+			case(5)://heart
+				if(link.get(0).getNumberCoin() - 10 >= 0 && link.get(0).getMaxLife()<5){
+					link.get(0).setNumberCoin(link.get(0).getNumberCoin() - 100);
+					link.get(0).setMaxLife(link.get(0).getMaxLife() + 1);
+					link.get(0).setLifePoint(link.get(0).getMaxLife());							
+					soundChange.playSound("shopbuy");
+					soundChange.playSound("rupee");
+					}	
+				else
+					soundChange.playSound("shopcantbuy");
+					break;
+				
+			case(6):
 				soundChoose.playSound("menuchoose");
-				deleteCopy();
-				if (k == 2){
-					status = 0;
+				System.out.println(map.getLevel());
+				if (map.getLevel().contentEquals("2")){
 					sound.soundEnd(sound.getAudioStream());
+					sound.playSound("forest2");
+				}
+				else if(map.getLevel().contentEquals("3")){
 					sound.soundEnd(sound.getAudioStream());
-					sound.playSound("menu");
-					level.setStatus(status);
-				}
-				else if (k == 1){ // ferme lapplication
-					System.exit(-1);
-				}
-				
-				enterPressed = false;
-			}
-		}	
-			
-			
-			
-		else if (status == 4){ // /!\ il faut reinitialise le k avant de lancer le shop
-			if(sound.isFinished(sound.getAudioStream()))
-			{
-				sound.playSound("shop");
-			}
-		
-			if (rightPressedMenu && pressedOnce & k < 6 ){
-				switch(k){
-				case(1):
-					store.get(2).setName("res/store2choose");
-					store.get(1).setName("res/store1");
-					break;					
-				
-				case(2):
-					store.get(3).setName("res/store3choose");
-					store.get(2).setName("res/store2");
-					break;
-					
-				case(3):
-					store.get(4).setName("res/store4choose");
-					store.get(3).setName("res/store3");
-					break;
-		
-				case(4):
-					store.get(5).setName("res/store5choose");
-					store.get(4).setName("res/store4");
-					break;
-				
-				case(5):
-					store.get(6).setName("res/store6choose");
-					store.get(5).setName("res/store5");
-					break;
-					
-				}
-				k+=1;
-				pressedOnce = false;
-				soundChange.playSound("menuchange");
-			}
-			
-			else if (leftPressedMenu && pressedOnce && k > 1){
-				switch(k){
-				case(6):
-					store.get(5).setName("res/store5choose");
-					store.get(6).setName("res/store6");
-					break;					
-					
-				case(2):
-					store.get(1).setName("res/store1choose");
-					store.get(2).setName("res/store2");
-					break;
-					
-				case(3):
-					store.get(2).setName("res/store2choose");
-					store.get(3).setName("res/store3");
-					break;
-		
-				case(4):
-					store.get(3).setName("res/store3choose");
-					store.get(4).setName("res/store4");
-					break;
-					
-				case(5):
-					store.get(4).setName("res/store4choose");
-					store.get(5).setName("res/store5");
-					break;
-					
-				}
-				k-=1;
-				pressedOnce = false;
-				soundChange.playSound("menuchange");
-
-
-				}
-			else if (!leftPressedMenu && !rightPressedMenu && !enterPressed){
-				pressedOnce = true;
-			}
-				
-			else if (enterPressed && pressedOnce){ 
-				switch (k){
-				case(1): // fleche
-					if(link.get(0).getNumberCoin() - 10 >= 0 && link.get(0).getNumberArrow()<99){
-						link.get(0).setNumberCoin(link.get(0).getNumberCoin() - 10);
-						link.get(0).setNumberArrow(link.get(0).getNumberArrow() + 1);
-						soundChange.playSound("shopbuy");
-						soundChange.playSound("rupee");
-					}	
-					else
-						soundChange.playSound("shopcantbuy");
-					break;
-				
-				case(2): //bombrange
-					if(link.get(0).getNumberCoin() - 10 >= 0 && link.get(0).getRangeBomb()<9){
-						link.get(0).setNumberCoin(link.get(0).getNumberCoin() - 30);
-						link.get(0).setRangeBomb(link.get(0).getRangeBomb() + 1);
-						soundChange.playSound("shopbuy");
-						soundChange.playSound("rupee");
-						}	
-					else
-						soundChange.playSound("shopcantbuy");
-					break;
-					
-				case(3): // bomb
-					if(link.get(0).getNumberCoin() - 10 >= 0 && link.get(0).getNumberBomb()<9){
-						link.get(0).setNumberCoin(link.get(0).getNumberCoin() - 30);
-						link.get(0).setNumberBomb(link.get(0).getNumberBomb()+1);
-						soundChange.playSound("shopbuy");
-						soundChange.playSound("rupee");
-
-					}	
-					else
-						soundChange.playSound("shopcantbuy");
-						break;
-				
-				case(4)://speed
-					if(link.get(0).getNumberCoin() - 10 >= 0 && link.get(0).getSpeed()<6){
-						link.get(0).setNumberCoin(link.get(0).getNumberCoin() - 50);
-						link.get(0).setSpeed(link.get(0).getSpeed()+1);
-						soundChange.playSound("shopbuy");
-						soundChange.playSound("rupee");
-						}	
-					else
-						soundChange.playSound("shopcantbuy");
-						break;
-				
-				case(5)://heart
-					if(link.get(0).getNumberCoin() - 10 >= 0 && link.get(0).getMaxLife()<5){
-						link.get(0).setNumberCoin(link.get(0).getNumberCoin() - 100);
-						link.get(0).setMaxLife(link.get(0).getMaxLife() + 1);
-						link.get(0).setLifePoint(link.get(0).getMaxLife());							
-						soundChange.playSound("shopbuy");
-						soundChange.playSound("rupee");
-						}	
-					else
-						soundChange.playSound("shopcantbuy");
-						break;
-					
-				case(6):
-					soundChoose.playSound("menuchoose");
-					System.out.println(map.getLevel());
-					if (map.getLevel().contentEquals("2")){
-						sound.soundEnd(sound.getAudioStream());
-						sound.playSound("forest2");
+					sound.playSound("dungeon");
 					}
-					else if(map.getLevel().contentEquals("3")){
-						sound.soundEnd(sound.getAudioStream());
-						sound.playSound("dungeon");
-						}
-					status = 2;
-					level.setStatus(status);
-					break;
-				}
-					
-					
-					
-				enterPressed = false;
+				status = Status.SOLO;
+				level.setStatus(status);
+				break;
 			}
+				
+				
+				
+			enterPressed = false;
 		}
+	}
+	
+	public void updateGameOver2() {
+		Sound soundChange = new Sound();
+		Sound soundChoose = new Sound();
+		
+		if (pausePressed && pressedOnce){
+			status = Status.SOLO;
+			level.setStatus(status);
+			pressedOnce = false;
+		}
+		else if (!pausePressed && !escapePressed){
+			pressedOnce = true;
+		}
+		
+		else if(escapePressed && pressedOnce)
+		{
+			sound.soundEnd(sound.getAudioStream());
+			sound.playSound("menu");
+			status = Status.MENU;
+			statusMenu = 2;
+			level.setStatus(status);
+			pressedOnce = false;
+		}
+	}
+	
+	public void updateMultiWin() {
+		
+		if (!enterPressed){
+			pressedOnce = true;
+			
+		}
+		else if (enterPressed && pressedOnce){
+			status = Status.MENU;
+			statusMenu = 2;
+			level.setStatus(status);
+			enterPressed = false;
+			menu.get(2).setName("res/2players");
+			menu.get(1).setName("res/1playerbombs");
+			sound.soundEnd(sound.getAudioStream());
+			sound.playSound("menu");
+		}
+	}
+	
+	public void update() {
+		Status s = level.getStatus();
+		if(s == Status.MENU)
+			updateMenu();
+		
+		else if(s == Status.MULTI_WIN)
+			updateMultiWin();
+		
+		else if(s == Status.MULTI)
+			updateMulti();
+	
+		else if(s == Status.GAME_OVER_2)
+			updateGameOver2();
+			
+		else if(s == Status.SOLO)
+			updateSolo();
+			
+		else if(s == Status.GAME_OVER)
+			updateGameOver();
+			
+		else if(s == Status.STORE)
+			updateStore();
 	}
 	
 	private void deleteCopy() {
@@ -934,47 +911,43 @@ public class GameController implements KeyListener{
 		return false;
 	}
 	
+	private void keyBoolean(int keyCode, boolean v) {
+		
+	}
+	
 	@Override
 	public void keyPressed(KeyEvent e) {
 	    int keyCode = e.getKeyCode();
 	    
 	    if (keyCode == KeyEvent.VK_D)
-	    	rightPressed= true;
+	    	rightPressed = true;
 	    
-    	else if(keyCode == KeyEvent.VK_Q) {
+    	else if(keyCode == KeyEvent.VK_Q)
     		leftPressed = true;
-    	}
 	    
     	else if(keyCode == KeyEvent.VK_P)
     		pausePressed= true;
-	    
-    	else if(keyCode == KeyEvent.VK_S) {
+	   
+    	else if(keyCode == KeyEvent.VK_S)
     		downPressed= true;
-    	}
 	    
-    	else if(keyCode == KeyEvent.VK_Z) {
+    	else if(keyCode == KeyEvent.VK_Z)
     		upPressed = true;
-    	}
 	    
-    	else if (keyCode == KeyEvent.VK_ENTER){
+    	else if (keyCode == KeyEvent.VK_ENTER)
     		enterPressed = true;
-    	}
     	
-    	else if(keyCode == KeyEvent.VK_V){
+    	else if(keyCode == KeyEvent.VK_V)
     		fireArrow = true;
-    	}
 	    
-    	else if(keyCode == KeyEvent.VK_SPACE){
+    	else if(keyCode == KeyEvent.VK_SPACE)
     		setBomb = true;
-    	}
 	    
-    	else if(keyCode == KeyEvent.VK_C) {
+    	else if(keyCode == KeyEvent.VK_C)
     		useStaff = true;
-    	}
 	    
-    	else if(keyCode == KeyEvent.VK_ESCAPE) {
+    	else if(keyCode == KeyEvent.VK_ESCAPE) 
     		escapePressed = true;
-    	}
 	    
     	else if(keyCode == KeyEvent.VK_UP) {
     		upPressed2 = true;
@@ -996,25 +969,21 @@ public class GameController implements KeyListener{
     		downPressedMenu = true;
     	}
 	    
-    	else if(keyCode == KeyEvent.VK_U) {
+    	else if(keyCode == KeyEvent.VK_U)
     		setBomb2 = true;
-    	}
 	    
-    	else if(keyCode == KeyEvent.VK_I) {
+    	else if(keyCode == KeyEvent.VK_I)
     		fireArrow2 = true;
-    	}
 	    
-    	else if(keyCode == KeyEvent.VK_O) {
+    	else if(keyCode == KeyEvent.VK_O)
     		useStaff2 = true;
-    	}
-	    
-	    
 	}
 
 	@Override
 	public void keyReleased(KeyEvent e) {
 		//liste.get(0).setActualFrame(1);
 	    int keyCode = e.getKeyCode();
+	    
 	    if (keyCode == KeyEvent.VK_D){
 	    	rightPressed = false;
 	    }

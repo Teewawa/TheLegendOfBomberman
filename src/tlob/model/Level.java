@@ -3,6 +3,8 @@ package tlob.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import tlob.controller.Status;
+
 public class Level{
 	
 	private Map map;
@@ -18,13 +20,12 @@ public class Level{
 	private List<Menu> menu;
 	private List<Menu> gameOver;
 	private List<Menu> store;
-	private int status = 0;
+	private Status status = Status.MENU;
 	
 	public Level(List<Menu> menu, List<Menu>gameOver, List<Menu>store){
 		this.menu = menu;
 		this.gameOver = gameOver;
 		this.store = store;
-		
 	}
 	
 	public void createLevel(Map map){
@@ -53,10 +54,10 @@ public class Level{
 	public void setMap(Map map){
 		this.map = map;
 	}
-	public void setStatus(int status){
+	public void setStatus(Status status){
 		this.status = status;
 	}
-	public int getStatus(){
+	public Status getStatus(){
 		return this.status;
 	}
 	
