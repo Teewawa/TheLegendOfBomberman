@@ -4,6 +4,7 @@ package tlob.controller;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import tlob.model.*;
@@ -32,22 +33,20 @@ public class GameController implements KeyListener{
 		}
 	}
 	
-	private boolean rightPressed = false;
-	private boolean leftPressed = false;
-	private boolean downPressed = false;
-	private boolean upPressed = false;
-	private boolean enterPressed = false;
-	private boolean fireArrow = false;
-	private boolean setBomb = false;
-	private boolean useStaff = false;
+	static class Booleans {
+		private boolean rightPressed = false;
+		private boolean leftPressed = false;
+		private boolean downPressed = false;
+		private boolean upPressed = false;
+		private boolean fireArrow = false;
+		private boolean setBomb = false;
+		private boolean useStaff = false;
+	};
 	
-	private boolean rightPressed2 = false;
-	private boolean leftPressed2 = false;
-	private boolean downPressed2 = false;
-	private boolean upPressed2 = false;
-	private boolean fireArrow2 = false;
-	private boolean setBomb2 = false;
-	private boolean useStaff2 = false;
+	private List<Booleans> boutons = new ArrayList<Booleans>();
+	String[] baseNames = new String[]{"Link", "RedLink"};
+	
+	private boolean enterPressed = false;
 	
 	private boolean upPressedMenu = false;
 	private boolean downPressedMenu = false;
@@ -59,7 +58,7 @@ public class GameController implements KeyListener{
 	
 	private boolean attributW;
 	
-	java.util.Random r = new java.util.Random( ) ;
+	private java.util.Random random = new java.util.Random();
 	
 	// 0 = menu, 1 = multi, 2 = solo
 	// 3 game Over, 4 store, 5 gameover, 6 multi win
@@ -72,6 +71,7 @@ public class GameController implements KeyListener{
 	private List<FireBall> fireBall;
 	private List<Thunder> thunder;
 	private List<BombDeflagration> bombDeflagration;
+	
 	private List<Menu> menu;
 	private List<Menu> gameOver;
 	private List<Menu> store;
@@ -89,6 +89,8 @@ public class GameController implements KeyListener{
 		this.gameOver = level.getGameOver();
 		this.store = level.getStore();
 		this.sound.play("menu");
+		for(int i = 0; i < 2; i++)
+			boutons.add( new Booleans() );
 	}
 	
 	public void createGameController(Level level){
@@ -103,29 +105,6 @@ public class GameController implements KeyListener{
 		this.map = level.getMap();
 	}
 		
-	public void setLink (List<Link> link){
-		this.link = link;
-	}
-	
-	public void setMonster(List<Monster> monster){
-		this.monster = monster;
-	}
-	
-	public void setBomb (List<Bomb> bomb){
-		this.bomb = bomb;
-	}
-	
-	public void setArrow (List<Arrow> arrow){
-		this.arrow = arrow;
-	}
-	
-	public void setBombDeflagration (List<BombDeflagration> bombDeflagration){
-		this.bombDeflagration = bombDeflagration;
-	}
-	
-	public void setInteraction (GameInteraction interaction){
-		this.interaction = interaction;
-	}
 	
 	public void updateMenu() {
 		Sound soundChange = new Sound("menuchange");
@@ -170,8 +149,8 @@ public class GameController implements KeyListener{
 				map.setEnvironment("/Forest");
 				level.createLevel(map);
 				createGameController(level);
-				link.add( new Link(3, 1*40, 1*40, 2, Direction.DROITE, "res/Link/LinkRun", 0) );
-				link.add( new Link(3, 13*40, 13*40, 2, Direction.GAUCHE, "res/RedLink/RedLinkRun", 1) );
+				link.add( new Link(3, 1*40, 1*40, 2, Direction.DROITE, baseNames[0]) );
+				link.add( new Link(3, 13*40, 13*40, 2, Direction.GAUCHE, baseNames[1]) );
 				sound.soundEnd();
 				sound.play("forest1");
 				soundChoose.play();
@@ -181,7 +160,7 @@ public class GameController implements KeyListener{
 				Map map = new Map(16, 16, "1", "3", "1");
 				level.createLevel(map);
 				createGameController(level);
-				link.add(new Link(3, 7 * 40, 13 * 40, 3, Direction.HAUT, "res/Link/LinkRun",0));
+				link.add(new Link(3, 7 * 40, 13 * 40, 3, Direction.HAUT, baseNames[0]));
 
 				sound.soundEnd();
 				sound.play("desert1");
@@ -197,7 +176,7 @@ public class GameController implements KeyListener{
 	public void updateMulti() {
 		if(sound.isFinished())
 		{
-			if (r.nextInt(2) == 0)
+			if (random.nextInt(2) == 0)
 				sound.play("forest1");
 			else
 				sound.play("forest2");
@@ -205,6 +184,8 @@ public class GameController implements KeyListener{
 		
 		for(int i = 0; i < link.size(); i++) {
 			Link l = link.get(i);
+			Booleans bouton = boutons.get(i);
+			String baseName = baseNames[i];
 			
 			if(l.getLifePoint() <= 0){
 				status = Status.MULTI_WIN;
@@ -214,180 +195,127 @@ public class GameController implements KeyListener{
 				break;
 			}
 			
-			//link.get(i).setSpeed(1);
-			
-			if(l.getInvincible() == 0){
+			if(l.getInvincible() == 0)
 				l.tickInvincible();
-			}
 		
 			interaction.linkInteraction(link.get(i));
 
-			if(rightPressed){
-				link.get(0).setName("res/Link/LinkRun");
-				link.get(0).move(Direction.DROITE);
+			if(bouton.rightPressed){
+				l.setName("res/" + baseName + "/" + baseName + "Run");
+				l.move(Direction.DROITE);
 			
 			}
-			if(leftPressed){
-				link.get(0).setName("res/Link/LinkRun");
-				link.get(0).move(Direction.GAUCHE);
+			if(bouton.leftPressed){
+				l.setName("res/" + baseName + "/" + baseName + "Run");
+				l.move(Direction.GAUCHE);
 			}
 		
-			if(downPressed){
-				link.get(0).setName("res/Link/LinkRun");
-				link.get(0).move(Direction.BAS);
+			if(bouton.downPressed){
+				l.setName("res/" + baseName + "/" + baseName + "Run");
+				l.move(Direction.BAS);
 			}
 		
-			if(upPressed){
-				link.get(0).setName("res/Link/LinkRun");
-				link.get(0).move(Direction.HAUT);
+			if(bouton.upPressed){
+				l.setName("res/" + baseName + "/" + baseName + "Run");
+				l.move(Direction.HAUT);
 			}
 		
-			if(fireArrow){
-				link.get(0).fireArrow(arrow);
-				if(link.get(0).getActualFrame() == 6){
-					fireArrow = false;
-					link.get(0).setActualFrame(1);
+			if(bouton.fireArrow){
+				l.fireArrow(arrow);
+				if(l.getActualFrame() == 6){
+					bouton.fireArrow = false;
+					l.setActualFrame(1);
 				}
 			}
-			if(setBomb){
+			if(bouton.setBomb){
 				int bomb0 = 0;
 				for(Bomb b : bomb){
-					if(b.getPlayer() == 0){
+					if(b.getPlayer() == l){
 						bomb0++;
 					}
 				}
-				if(bomb0< link.get(0).getNumberBomb()){
-					link.get(0).setBomb(bomb);				
+				if(bomb0 < l.getNumberBomb()){
+					l.setBomb(bomb);				
 				}
-				setBomb = false;
+				bouton.setBomb = false;
 			}
-			if(useStaff==true && link.get(0).getStaff()!=-1) {
-				if(link.get(0).getStaff() == 0) {
-					link.get(1).getDamage(1);			
-					useStaff = false; 
-					link.get(0).setStaff(-1); 
-				}
-				else if(link.get(0).getStaff() == 1) {
-					link.get(1).setFrozen();
-					link.get(1).tickFrozen();	
-					if(link.get(1).getFrozen() == 1) {
-						useStaff=false; 
-						link.get(0).setStaff(-1); 
+			if(bouton.useStaff == true && l.getStaff() != -1) {
+				for(Link a : link) {
+					if(a != l) {
+						if(l.getStaff() == 0) {
+							a.getDamage(1);			
+							bouton.useStaff = false; 
+							l.setStaff(-1); 
+						}
+						else if(l.getStaff() == 1) {
+							a.setFrozen();
+							a.tickFrozen();	
+							if(a.getFrozen() == 1) {
+								bouton.useStaff = false; 
+								l.setStaff(-1); 
+							}
+						}
 					}
 				}
 			}
 			else {
-				useStaff = false;
+				bouton.useStaff = false;
 			}
 		
-			if(rightPressed2){
-				link.get(1).setName("res/RedLink/RedLinkRun");
-				link.get(1).move(Direction.DROITE);
-			
-			}
-			if(leftPressed2){
-				link.get(1).setName("res/RedLink/RedLinkRun");
-				link.get(1).move(Direction.GAUCHE);
-			}
-		
-			if(downPressed2){
-				link.get(1).setName("res/RedLink/RedLinkRun");
-				link.get(1).move(Direction.BAS);
-			}
-		
-			if(upPressed2){
-				link.get(1).setName("res/RedLink/RedLinkRun");
-				link.get(1).move(Direction.HAUT);
-			}
-		
-			if(fireArrow2){
-				link.get(1).fireArrow(arrow);
-				if(link.get(1).getActualFrame() == 6){
-					fireArrow2 = false;
-					link.get(1).setActualFrame(1);
-				}
-			}
-			if(setBomb2){
-				int bomb1 = 0;
-				for(Bomb b : bomb){
-					if(b.getPlayer() == 1){
-						bomb1++;
-					}
-				}
-				if(bomb1< link.get(1).getNumberBomb()){
-					link.get(1).setBomb(bomb);				
-				}
-				setBomb2 = false;
-			}
-			
-			if(useStaff2==true && link.get(1).getStaff()!=-1) {
-				if(link.get(1).getStaff()==0) {
-					link.get(0).getDamage(1);
-					useStaff2=false; 
-					link.get(1).setStaff(-1); 
-				}
-				else if(link.get(1).getStaff()==1) {
-					link.get(0).setFrozen();
-					link.get(0).tickFrozen();
-					if(link.get(0).getFrozen()==1) {
-						useStaff2=false; 
-						link.get(1).setStaff(-1); 
-					}
-				}
-			}
-			
-			else {
-				useStaff2 = false;
-			}
-			
-			interaction.linkInteraction(link.get(i));
+			interaction.linkInteraction(l);
 		}
 
 		for(int p = 0; p < arrow.size(); p++){
-			int a = interaction.arrowInteraction(arrow.get(p));
+			Arrow arr = arrow.get(p);
+			int a = interaction.arrowInteraction(arr);
 			if(a != 0){
 				if(a == 2){
-					arrow.get(p).tick(5);
+					arr.tick(5);
 					//arrow.get(p).setActualFrame(1);
-					if(arrow.get(p).getTime() == 3){
+					if(arr.getTime() == 3){
 						arrow.remove(p);
+						p--;
 					}
 				}
 				else{
 					arrow.remove(p);
+					p--;
 				}
 			}
 		}
 
 		for(int p = 0; p < bomb.size(); p++){
-			interaction.bombInteraction(bomb.get(p));
-			bomb.get(p).tick();
-			if(bomb.get(p).getTime() == 15){ //changer dans deflagration si changement de temps
-				bombDeflagration.add(new BombDeflagration(bomb.get(p).getXPos(),bomb.get(p).getYPos(),
-						"res/Deflagration",bomb.get(p).getPlayer()));
+			Bomb b = bomb.get(p);
+			
+			interaction.bombInteraction(b);
+			b.tick();
+			if(b.getTime() == 15){ //changer dans deflagration si changement de temps
+				bombDeflagration.add( new BombDeflagration(b.getXPos(), b.getYPos(), "res/Deflagration", b.getPlayer()) );
 				bomb.remove(p);
-				Sound soundBomb = new Sound();
-				soundBomb.play("bomb");
+				p--;
+				new Sound("bomb").play();
 			}
 		}
 		
 		for(int p = 0; p < bombDeflagration.size(); p++){
-			bombDeflagration.get(p).tick(2);
-			if(bombDeflagration.get(p).getPortee() < link.get(bombDeflagration.get(p).getPlayer()).getRangeBomb()*4+2){
-				interaction.deflagrationAppear(bombDeflagration.get(p),
-						link.get(bombDeflagration.get(p).getPlayer()).getRangeBomb());
-				interaction.defInteraction(bombDeflagration.get(p));
+			BombDeflagration def = bombDeflagration.get(p);
+			
+			def.tick(2);
+			if(def.getPortee() < def.getPlayer().getRangeBomb() * 4 + 2){
+				interaction.deflagrationAppear(def, def.getPlayer().getRangeBomb());
+				interaction.defInteraction(def);
 			}
 			else{
 				bombDeflagration.remove(p);
+				p--;
 			}
 		}
 	}
 	
 	public void updateSolo() {
-		Sound soundChange = new Sound();
+		Link l = link.get(0);
+		Booleans bouton = boutons.get(0);
 		
-		// /!\ il faut reinitialise le k avant de lancer le shop
 		if (pausePressed && pressedOnce){
 			status = Status.GAME_OVER;
 			level.setStatus(status);
@@ -398,11 +326,11 @@ public class GameController implements KeyListener{
 			pressedOnce = true;
 		}
 					
-		if (gameOver(link.get(0))){
+		if (l.getLifePoint() <= 0){
 			status = Status.GAME_OVER;
 			level.setStatus(status);
 			enterPressed = false;
-			fireArrow = false;
+			bouton.fireArrow = false;
 			sound.soundEnd();
 			sound.play("gameOver");
 			statusMenu = 2;
@@ -410,33 +338,37 @@ public class GameController implements KeyListener{
 		
 		if(interaction.getChestOpen() == true){
 			interaction.setChestOpen(false);
-			soundChange.play("treasure");
+			new Sound("treasure").play();
 		}
 		
-		for (int i =0;i<level.getDecor().size();i++){
-			if(map.getRoomColumn().contentEquals("2")  && map.getLevel().contentEquals("2") && map.getRoomLine().contentEquals("2")){
-				if(level.getDecor().get(i).getClass() == Door.class){
-					((Door)(level.getDecor().get(i))).setOpen(false);
-					level.getDecor().get(i).setName("res/Desert/Obstacle3");
+		for (Decor d : level.getDecor()) {
+			if(map.getRoomColumn().contentEquals("2")
+				&& map.getLevel().contentEquals("2")
+				&& map.getRoomLine().contentEquals("2")){
+				if(d instanceof Door){
+					((Door)d).setOpen(false);
+					d.setName("res/Desert/Obstacle3");
 				}					
 			}
 		}
 		
 		if (monster.size() == 0){
-			for (int i =0;i<level.getDecor().size();i++){
-				if(level.getDecor().get(i).getClass() == Door.class){
-					((Door)(level.getDecor().get(i))).setOpen(true);
-					if(((Door)level.getDecor().get(i)).getLine() == 1){
-						level.getDecor().get(i).setName("res" + map.getEnvironment() +"/DoorU");
+			for (Decor d : level.getDecor()) {
+				if(d instanceof Door){
+					Door door = (Door)d;
+					door.setOpen(true);
+					if(door.getLine() == 1){
+						door.setName("res" + map.getEnvironment() + "/DoorU");
 					}
-					if(((Door)level.getDecor().get(i)).getLevel() == 1){
-						level.getDecor().get(i).setName("res" + map.getEnvironment() + "/DoorR");
+					if(door.getLevel() == 1){
+						door.setName("res" + map.getEnvironment() + "/DoorR");
 					}
 				}				
 			}
 		}
-		for(int t = 0; t < monster.size();t++){
-			if(monster.get(t).getClass() == Boss.class && monster.get(t).getLifePoint() <= 0){
+		
+		for(Monster m : monster) {
+			if(m instanceof Boss && m.getLifePoint() <= 0){
 				status = Status.MULTI_WIN;
 				level.setStatus(status);
 				sound.soundEnd();
@@ -444,22 +376,19 @@ public class GameController implements KeyListener{
 			}
 		}
 		
-		for(int t = 0; t < monster.size();t++){
-			if(monster.get(t).getClass() == Boss.class && attributW == false){
+		for(Monster m : monster) {
+			if(m instanceof Boss && attributW == false){
 				sound.soundEnd();
 				sound.play("Boss");
 				attributW = true;
 			}
 		}
 
-		for (int p = 0; p < level.getDecor().size(); p ++){
-			if(level.getDecor().get(p).getClass() == SpawnerMonster.class){
-				((SpawnerMonster)(level.getDecor().get(p))).spawnMonster(level.getMonster());	
-			}
-			if(level.getDecor().get(p).getClass() == SpawnerFireBall.class){
-				((SpawnerFireBall)(level.getDecor().get(p))).fireBall(fireBall, link.get(0));
-			}
-			
+		for (Decor d : level.getDecor()) {
+			if(d instanceof SpawnerMonster)
+				((SpawnerMonster)d).spawnMonster(level.getMonster());	
+			else if(d instanceof SpawnerFireBall)
+				((SpawnerFireBall)d).fireBall(fireBall, l);
 		}
 		
 		if(interaction.getChangeLevel() == true)
@@ -474,193 +403,184 @@ public class GameController implements KeyListener{
 		else{
 			if(sound.isFinished())
 			{	
-				for(int i = 0;i<monster.size();i++){
-					if(monster.get(i).getClass() == Boss.class){
+				for(Monster m : monster) {
+					if(m instanceof Boss){
 						sound.play("Boss");
 						break;
 					}
 				}
-						
-				 if (map.getEnvironment() == "/Desert"){
-					int random = r.nextInt(2);
-					if (random == 0){
-						sound.play("desert");
-					}
-					else if(random == 1){
-						sound.play("desert1");
-					}
+				
+				if (map.getEnvironment() == "/Desert"){
+					sound.play(random.nextInt(2) == 0 ? "desert" : "desert1");
 				}
 				else if (map.getEnvironment() == "/Forest"){
-					int random = r.nextInt(2);
-					if (random == 0){
-						sound.play("forest1");
-					}
-					else if(random == 1){
-						sound.play("forest2");
-				}
+					sound.play(random.nextInt(2) == 0 ? "forest1" : "forest2");
 				}
 				else if (map.getEnvironment().contentEquals("/Dungeon")){
-					int random = r.nextInt(2);
-					if (random == 0){
-						sound.play("dungeon");
-					}
-						else if(random == 1){
-						sound.play("dungeon1");
-					}
+					sound.play(random.nextInt(2) == 0 ? "dungeon" : "dungeon1");
 				}
 			}
-		
 			
-			for(int i = 0; i < link.size(); i++){
-						
-				if(link.get(i).getInvincible() == 0){
-					link.get(i).tickInvincible();
+			for(int i = 0; i < 1; i++){
+				
+				if(l.getInvincible() == 0){
+					l.tickInvincible();
 				}
 			
-				interaction.linkInteraction(link.get(i));
+				interaction.linkInteraction(l);
 
-				if(rightPressed){
-					link.get(0).setName("res/Link/LinkRun");
-					link.get(0).move(Direction.DROITE);
-				
+				if(bouton.rightPressed){
+					l.setName("res/Link/LinkRun");
+					l.move(Direction.DROITE);
 				}
-				if(leftPressed){
-					link.get(0).setName("res/Link/LinkRun");
-					link.get(0).move(Direction.GAUCHE);
-				}
-			
-				if(downPressed){
-					link.get(0).setName("res/Link/LinkRun");
-					link.get(0).move(Direction.BAS);
+				if(bouton.leftPressed){
+					l.setName("res/Link/LinkRun");
+					l.move(Direction.GAUCHE);
 				}
 			
-				if(upPressed){
-					link.get(0).setName("res/Link/LinkRun");
-					link.get(0).move(Direction.HAUT);
+				if(bouton.downPressed){
+					l.setName("res/Link/LinkRun");
+					l.move(Direction.BAS);
+				}
+			
+				if(bouton.upPressed){
+					l.setName("res/Link/LinkRun");
+					l.move(Direction.HAUT);
 				}
 				
-				if(fireArrow){
-					link.get(0).fireArrow(arrow);
-					if(link.get(0).getActualFrame() == 6){
-						fireArrow = false;
-						link.get(0).setActualFrame(1);
+				if(bouton.fireArrow){
+					l.fireArrow(arrow);
+					if(l.getActualFrame() == 6){
+						bouton.fireArrow = false;
+						l.setActualFrame(1);
 					}
 				}
-				if(setBomb){
+				
+				if(bouton.setBomb){
 					int bomb0 = 0;
-					for(Bomb b : bomb){
-						if(b.getPlayer() == 0){
+					for(Bomb b : bomb)
+						if(b.getPlayer() == l)
 							bomb0++;
-						}
-					}
-					if(bomb0< link.get(0).getNumberBomb()){
-						link.get(0).setBomb(bomb);				
-					}
-					setBomb = false;
+						
+					if(bomb0 < l.getNumberBomb())
+						l.setBomb(bomb);		
+					
+					bouton.setBomb = false;
 				}
-				if(useStaff && link.get(0).getStaff() != -1) {
-					if(link.get(0).getStaff()==0) {
-						for (Monster m : monster) {
-							m.getDamage(1);			
-						}
-						useStaff=false; 
-						link.get(0).setStaff(-1); 
+				
+				if(bouton.useStaff && l.getStaff() != -1) {
+					if(l.getStaff() == 0) {
+						for (Monster m : monster)
+							m.getDamage(1);
+							
+						bouton.useStaff = false;
+						l.setStaff(-1); 
 					}
-					else if(link.get(0).getStaff()==1) {
+					else if(l.getStaff() == 1) {
 						for (Monster m : monster) {
 							m.setFrozen();
 							m.tickFrozen();	
 							if(m.getFrozen()==1) {
-								useStaff=false; 
-								link.get(0).setStaff(-1); 
+								bouton.useStaff = false; 
+								l.setStaff(-1); 
 							}
 						}
 					}
 				}
 				else {
-					useStaff = false;
+					bouton.useStaff = false;
 				}
 			}
 		
-		
-			for(int i = 0; i < monster.size(); i++){
-				if(monster.get(i).getInvincible() == 0 && monster.get(i).getClass() != MovingTrap.class){
-					if((monster.get(i).getClass() == Underground.class && ((Underground) monster.get(i)).getUnderground() == true)){
+			for(int p = 0; p < monster.size(); p++){
+				Monster m = monster.get(p);
+				if(m.getInvincible() == 0 || m instanceof MovingTrap){
+					if(m instanceof Underground && ((Underground) m).getUnderground() == true){
+						
 					}
 					else{
-						monster.get(i).tickInvincible();
+						m.tickInvincible();
 					}
 				}
-				interaction.monsterInteraction(monster.get(i));
-				if(monster.get(i).getLifePoint() == 0){
-					monster.remove(i);
+				interaction.monsterInteraction(m);
+				if(m.getLifePoint() <= 0){
+					monster.remove(p);
+					p--;
 				}
 			}
 
 			for(int p = 0; p < arrow.size(); p++){
-				int a = interaction.arrowInteraction(arrow.get(p));
+				Arrow arr = arrow.get(p);
+				int a = interaction.arrowInteraction(arr);
 				if(a != 0){
 					if(a == 2){
-						arrow.get(p).tick(5);
+						arr.tick(5);
 						//arrow.get(p).setActualFrame(1);
-						if(arrow.get(p).getTime() == 3){
+						if(arr.getTime() == 3){
 							arrow.remove(p);
+							p--;
 						}
 					}
 					else{
 						arrow.remove(p);
+						p--;
 					}
 				}
 			}
 	
 			for(int p = 0; p < bomb.size(); p++){
-				interaction.bombInteraction(bomb.get(p));
-				bomb.get(p).tick();
-				if(bomb.get(p).getTime() == 15){ //changer dans deflagration si changement de temps
-					bombDeflagration.add(new BombDeflagration(bomb.get(p).getXPos(),
-							bomb.get(p).getYPos(),"res/Deflagration",bomb.get(p).getPlayer()));
+				Bomb b = bomb.get(p);
+				interaction.bombInteraction(b);
+				b.tick();
+				if(b.getTime() == 15){ //changer dans deflagration si changement de temps
+					bombDeflagration.add(new BombDeflagration(b.getXPos(), b.getYPos(), "res/Deflagration", b.getPlayer()));
 					bomb.remove(p);
-					Sound soundBomb = new Sound();
-					soundBomb.play("bomb");
+					p--;
+					new Sound("bomb").play("bomb");
 				}
 			}
 			
 			for(int p = 0; p < bombDeflagration.size(); p++){
-				bombDeflagration.get(p).tick(2);
-				if(bombDeflagration.get(p).getPlayer() == -1){
-					if(bombDeflagration.get(p).getPortee() < 2*4+2){
-						interaction.deflagrationAppear(bombDeflagration.get(p), 2);
-						interaction.defInteraction(bombDeflagration.get(p));
+				BombDeflagration def = bombDeflagration.get(p);
+				def.tick(2);
+				if(def.getPlayer() == null){
+					if(def.getPortee() < 2 * 4 + 2){
+						interaction.deflagrationAppear(def, 2);
+						interaction.defInteraction(def);
 					}
 					else{
 						bombDeflagration.remove(p);
+						p--;
 					}
 				}
 				else{
-					if(bombDeflagration.get(p).getPortee() < link.get(bombDeflagration.get(p).getPlayer())
-							.getRangeBomb()*4+2){
-						interaction.deflagrationAppear(bombDeflagration.get(p), 
-								link.get(bombDeflagration.get(p).getPlayer()).getRangeBomb());
-						interaction.defInteraction(bombDeflagration.get(p));
+					if(def.getPortee() < def.getPlayer().getRangeBomb() * 4 + 2){
+						interaction.deflagrationAppear(def, def.getPlayer().getRangeBomb());
+						interaction.defInteraction(def);
 					}
 					else{
 						bombDeflagration.remove(p);
+						p--;
 					}
 				}
 			}
 			
 			for(int p = 0; p < fireBall.size(); p++){
-				fireBall.get(p).tick();
-				interaction.fireBallInteraction(fireBall.get(p));
-					if(fireBall.get(p).getList().size() < fireBall.get(p).getPos()-1){
-						fireBall.remove(p);
-					}
+				FireBall f = fireBall.get(p);
+				f.tick();
+				interaction.fireBallInteraction(f);
+				if(f.getList().size() < f.getAttributPos() - 1){
+					fireBall.remove(p);
+					p--;
+				}
 			}
 			
 			for(int p = 0; p < thunder.size(); p++){
-				interaction.thunderInteraction(thunder.get(p));
-				if(thunder.get(p).getTickThunder() == 100){
+				Thunder t  = thunder.get(p);
+				interaction.thunderInteraction(t);
+				if(t.getTickThunder() == 100){
 					thunder.remove(p);
+					p--;
 				}
 			}
 		}
@@ -671,11 +591,11 @@ public class GameController implements KeyListener{
 		Sound soundChoose = new Sound();
 		
 		if (leftPressedMenu && pressedOnce && statusMenu < 2){
-			for (int i = 0; i < gameOver.size();i++){
-				if(gameOver.get(i).getStatus() == statusMenu)
-					gameOver.get(i).setName("res/no");		
-				else if(gameOver.get(i).getStatus() == statusMenu + 1)
-					gameOver.get(i).setName("res/yesbombs"); 
+			for (Menu g : gameOver) {
+				if(g.getStatus() == statusMenu)
+					g.setName("res/no");		
+				else if(g.getStatus() == statusMenu + 1)
+					g.setName("res/yesbombs"); 
 			}
 			statusMenu++;
 			pressedOnce = false;
@@ -683,12 +603,11 @@ public class GameController implements KeyListener{
 
 		}
 		else if (rightPressedMenu && pressedOnce && statusMenu > 1){
-			for (int i = 0; i<gameOver.size();i++){
-				if(gameOver.get(i).getStatus() == statusMenu)
-					gameOver.get(i).setName("res/yes");	
-				else if(gameOver.get(i).getStatus() == statusMenu - 1)
-					gameOver.get(i).setName("res/nobombs");  
-
+			for (Menu g : gameOver) {
+				if(g.getStatus() == statusMenu)
+					g.setName("res/yes");	
+				else if(g.getStatus() == statusMenu - 1)
+					g.setName("res/nobombs");  
 			}
 			statusMenu--;
 			pressedOnce = false;
@@ -887,61 +806,51 @@ public class GameController implements KeyListener{
 	}
 	
 	private void deleteCopy() {
-		for (int i = 1; i <= 3; i ++){
-			for(int j = 1; j <= 3; j++){
-				for (int k = 1; k <= 3;k ++){
+		for (int i = 1; i <= 3; i ++)
+			for(int j = 1; j <= 3; j++)
+				for (int k = 1; k <= 3;k ++) {
 					File f = new File("res/" + i + "-" + j + "-" + k + "copy.txt");
 					if (f.exists())
 						f.delete();					
 				}
-			}
-		}
-		
 	}
 
-
-	public boolean gameOver(Link link){
-		if (link.getLifePoint()<= 0)
-			return true;
-		return false;
-	}
-	
 	private void keyBoolean(int keyCode, boolean value) {
 		if (keyCode == KeyEvent.VK_D)
-	    	rightPressed = value;
+			boutons.get(0).rightPressed = value;
 	    
     	else if(keyCode == KeyEvent.VK_Q)
-    		leftPressed = value;
+    		boutons.get(0).leftPressed = value;
 	    
+    	else if(keyCode == KeyEvent.VK_S)
+    		boutons.get(0).downPressed = value;
+	    
+    	else if(keyCode == KeyEvent.VK_Z)
+    		boutons.get(0).upPressed = value;
+		
     	else if(keyCode == KeyEvent.VK_ESCAPE) 
     		escapePressed = value;
 	    
     	else if(keyCode == KeyEvent.VK_P)
     		pausePressed = value;
 	   
-    	else if(keyCode == KeyEvent.VK_S)
-    		downPressed = value;
-	    
-    	else if(keyCode == KeyEvent.VK_Z)
-    		upPressed = value;
-	    
     	else if(keyCode == KeyEvent.VK_UP) {
-    		upPressed2 = value;
+    		boutons.get(1).upPressed = value;
     		upPressedMenu = value;
     	}
 	    
     	else if(keyCode == KeyEvent.VK_RIGHT) {
-    		rightPressed2 = value;
+    		boutons.get(1).rightPressed = value;
     		rightPressedMenu = value;
     	}
 	    
     	else if(keyCode == KeyEvent.VK_LEFT) {
-    		leftPressed2 = value;
+    		boutons.get(1).leftPressed = value;
     		leftPressedMenu = value;
     	}
 	    
     	else if(keyCode == KeyEvent.VK_DOWN) {
-    		downPressed2 = value;
+    		boutons.get(1).downPressed = value;
     		downPressedMenu = value;
     	}
 	}
@@ -956,22 +865,22 @@ public class GameController implements KeyListener{
     		enterPressed = true;
     	
     	else if(keyCode == KeyEvent.VK_SPACE)
-    		setBomb = true;
+    		boutons.get(0).setBomb = true;
 	    
     	else if(keyCode == KeyEvent.VK_V)
-    		fireArrow = true;
+    		boutons.get(0).fireArrow = true;
     	
     	else if(keyCode == KeyEvent.VK_C)
-    		useStaff = true;
+    		boutons.get(0).useStaff = true;
 	    
     	else if(keyCode == KeyEvent.VK_U)
-    		setBomb2 = true;
+    		boutons.get(1).setBomb = true;
 	    
     	else if(keyCode == KeyEvent.VK_I)
-    		fireArrow2 = true;
+    		boutons.get(1).fireArrow = true;
 	    
     	else if(keyCode == KeyEvent.VK_O)
-    		useStaff2 = true;
+    		boutons.get(1).useStaff = true;
 	}
 
 	@Override

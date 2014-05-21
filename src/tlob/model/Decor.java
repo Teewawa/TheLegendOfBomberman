@@ -1,6 +1,6 @@
 package tlob.model;
 
-public abstract class Decor implements Tick{
+public abstract class Decor implements Tick, Hitbox {
 	
 	protected int xPos;
 	protected int yPos;
@@ -9,12 +9,15 @@ public abstract class Decor implements Tick{
 	private int tick = 0;
 	private int myTick = 0;
 	private int actualFrame = 1;
+	private int width;
+	private int height;
 	
 
 	public Decor(int xPos, int yPos, String name) {
 		this.xPos = xPos;
 		this.yPos = yPos;
 		this.name = name;
+		width = height = 40;
 	}
 	
 	public int getXPos() {
@@ -31,6 +34,22 @@ public abstract class Decor implements Tick{
 	
 	public void setYPos(int yPos) {
 		this.yPos=yPos;
+	}
+	
+	public int[] getPos() {
+		return new int[]{xPos, yPos};
+	}
+	
+	public int getWidth() {
+		return width;
+	}
+	
+	public int getHeight() {
+		return height;
+	}
+	
+	public int[] getSize() {
+		return new int[]{width, height};
 	}
 	
 	public String getName()

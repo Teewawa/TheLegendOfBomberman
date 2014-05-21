@@ -399,125 +399,125 @@ public char[][] listToMap(List<Decor> decor, List<Monster> monster){
 			map[k][p] = '0';
 		}
 	for(int i = 0; i < decor.size();i++){
-		if (decor.get(i).getClass() == Floor.class && ("res/Tapis") == ((Floor)(decor.get(i))).getName()){
+		if (decor.get(i) instanceof Floor && ("res/Tapis") == ((Floor)(decor.get(i))).getName()){
 			map[decor.get(i).getYPos()/40][decor.get(i).getXPos()/40] = 't';
 		}
 		
-		else if(decor.get(i).getClass() == Floor.class)
+		else if(decor.get(i) instanceof Floor)
 			map[decor.get(i).getYPos()/40][decor.get(i).getXPos()/40] = '0';
 		
-		else if(decor.get(i).getClass() == Wall.class && 
+		else if(decor.get(i) instanceof Wall && 
 				(("res" + environment +"/Obstacle1").contentEquals(decor.get(i).getName()))
 				|| (("res" + environment +"/Obstacle2").contentEquals(decor.get(i).getName()))
 				|| (("res" + environment +"/Obstacle3").contentEquals(decor.get(i).getName()))
 				|| (("res" + environment +"/Obstacle4").contentEquals(decor.get(i).getName())))
 			map[decor.get(i).getYPos()/40][decor.get(i).getXPos()/40] = 'r';		
 		
-		else if(decor.get(i).getClass() == Wall.class)
+		else if(decor.get(i) instanceof Wall)
 			map[decor.get(i).getYPos()/40][decor.get(i).getXPos()/40] = '1';
 		
-		else if(decor.get(i).getClass() == Jar.class)
+		else if(decor.get(i) instanceof Jar)
 			map[decor.get(i).getYPos()/40][decor.get(i).getXPos()/40] = '2';
 		
-		else if(decor.get(i).getClass() == SpawnerFireBall.class)
+		else if(decor.get(i) instanceof SpawnerFireBall)
 			map[decor.get(i).getYPos()/40][decor.get(i).getXPos()/40] = '3';
 		
-		else if(decor.get(i).getClass() == SpawnerMonster.class)
+		else if(decor.get(i) instanceof SpawnerMonster)
 			map[decor.get(i).getYPos()/40][decor.get(i).getXPos()/40] = '4';
 		
-		else if(decor.get(i).getClass() == Hole.class)
+		else if(decor.get(i) instanceof Hole)
 			map[decor.get(i).getYPos()/40][decor.get(i).getXPos()/40] = '6';
 	
-		else if(decor.get(i).getClass() == SpawnerFireBall.class)
+		else if(decor.get(i) instanceof SpawnerFireBall)
 			map[decor.get(i).getYPos()/40][decor.get(i).getXPos()/40] = '4';
 		
-		else if(decor.get(i).getClass() == SpawnerMonster.class)
+		else if(decor.get(i) instanceof SpawnerMonster)
 			map[decor.get(i).getYPos()/40][decor.get(i).getXPos()/40] = '3';
 		
-		else if(decor.get(i).getClass() == Door.class && ((Door)decor.get(i)).getLine() == 1)
+		else if(decor.get(i) instanceof Door && ((Door)decor.get(i)).getLine() == 1)
 			map[decor.get(i).getYPos()/40][decor.get(i).getXPos()/40] = '8';
 		
-		else if(decor.get(i).getClass() == Door.class && ((Door)decor.get(i)).getLevel() == 1)
+		else if(decor.get(i) instanceof Door && ((Door)decor.get(i)).getLevel() == 1)
 			map[decor.get(i).getYPos()/40][decor.get(i).getXPos()/40] = '9';
 		
-		else if(decor.get(i).getClass() == Door.class && ((Door)decor.get(i)).getColumn() == 1)
+		else if(decor.get(i) instanceof Door && ((Door)decor.get(i)).getColumn() == 1)
 			map[decor.get(i).getYPos()/40][decor.get(i).getXPos()/40] = '-';
 		
-		else if(decor.get(i).getClass() == Door.class && ((Door)decor.get(i)).getLine() == -1)
+		else if(decor.get(i) instanceof Door && ((Door)decor.get(i)).getLine() == -1)
 			map[decor.get(i).getYPos()/40][decor.get(i).getXPos()/40] = '_';
 		
-		else if(decor.get(i).getClass() == Door.class && ((Door)decor.get(i)).getColumn() == -1)
+		else if(decor.get(i) instanceof Door && ((Door)decor.get(i)).getColumn() == -1)
 			map[decor.get(i).getYPos()/40][decor.get(i).getXPos()/40] = ':';
 		
-		//else if(decor.get(i).getClass() == Floor.class && ("res"+environment+"/WallUL").contentEquals(decor.
+		//else if(decor.get(i) instanceof Floor.class && ("res"+environment+"/WallUL").contentEquals(decor.
 			//	get(i).getName()))
 		//	map[decor.get(i).getYPos()/40][decor.get(i).getXPos()/40] = 'e';
 		
-		else if(decor.get(i).getClass() == Treasure.class && ((Treasure)(decor.get(i))).getBonusType() == 2 &&
+		else if(decor.get(i) instanceof Treasure && ((Treasure)(decor.get(i))).getBonusType() == 2 &&
 				((Treasure)(decor.get(i))).isBonusTaken() == false)
 			map[decor.get(i).getYPos()/40][decor.get(i).getXPos()/40] = 'b';
 		
-		else if(decor.get(i).getClass() == Treasure.class && ((Treasure)(decor.get(i))).getBonusType() == 1 &&
+		else if(decor.get(i) instanceof Treasure && ((Treasure)(decor.get(i))).getBonusType() == 1 &&
 				((Treasure)(decor.get(i))).isBonusTaken() == false)
 			map[decor.get(i).getYPos()/40][decor.get(i).getXPos()/40] = 'a';
 		
-		else if(decor.get(i).getClass() == Treasure.class && ((Treasure)(decor.get(i))).getBonusType() == 5 &&
+		else if(decor.get(i) instanceof Treasure && ((Treasure)(decor.get(i))).getBonusType() == 5 &&
 				((Treasure)(decor.get(i))).isBonusTaken() == false)
 			map[decor.get(i).getYPos()/40][decor.get(i).getXPos()/40] = 'w';
 		
-		else if(decor.get(i).getClass() == Treasure.class && ((Treasure)(decor.get(i))).getBonusType() == 4 &&
+		else if(decor.get(i) instanceof Treasure && ((Treasure)(decor.get(i))).getBonusType() == 4 &&
 				((Treasure)(decor.get(i))).isBonusTaken() == false)
 			map[decor.get(i).getYPos()/40][decor.get(i).getXPos()/40] = 'c';
 		
-		else if(decor.get(i).getClass() == Wall.class && ("res"+environment+"/WallU").contentEquals(decor.
+		else if(decor.get(i) instanceof Wall && ("res"+environment+"/WallU").contentEquals(decor.
 				get(i).getName()))
 			map[decor.get(i).getYPos()/40][decor.get(i).getXPos()/40] = 'h';
 		
-		else if(decor.get(i).getClass() == Wall.class && ("res"+environment+"/WallL").contentEquals(decor.
+		else if(decor.get(i) instanceof Wall && ("res"+environment+"/WallL").contentEquals(decor.
 				get(i).getName()))
 			map[decor.get(i).getYPos()/40][decor.get(i).getXPos()/40] = 'j';
 		
-		else if(decor.get(i).getClass() == Wall.class && ("res"+environment+"/WallR").contentEquals(decor.
+		else if(decor.get(i) instanceof Wall && ("res"+environment+"/WallR").contentEquals(decor.
 				get(i).getName()))
 			map[decor.get(i).getYPos()/40][decor.get(i).getXPos()/40] = 'k';
 		
-		else if(decor.get(i).getClass() == Wall.class && ("res"+environment+"/WallD").contentEquals(decor.
+		else if(decor.get(i) instanceof Wall && ("res"+environment+"/WallD").contentEquals(decor.
 				get(i).getName()))
 			map[decor.get(i).getYPos()/40][decor.get(i).getXPos()/40] = 'z';
 		
-		else if(decor.get(i).getClass() == Wall.class && ("res"+environment+"/WallUL").contentEquals(decor.
+		else if(decor.get(i) instanceof Wall && ("res"+environment+"/WallUL").contentEquals(decor.
 				get(i).getName()))
 			map[decor.get(i).getYPos()/40][decor.get(i).getXPos()/40] = 'u';
 		
-		else if(decor.get(i).getClass() == Wall.class && ("res"+environment+"/WallUR").contentEquals(decor.
+		else if(decor.get(i) instanceof Wall && ("res"+environment+"/WallUR").contentEquals(decor.
 				get(i).getName()))
 			map[decor.get(i).getYPos()/40][decor.get(i).getXPos()/40] = 'i';
 		
-		else if(decor.get(i).getClass() == Wall.class && ("res"+environment+"/WallDL").contentEquals(decor.
+		else if(decor.get(i) instanceof Wall && ("res"+environment+"/WallDL").contentEquals(decor.
 				get(i).getName()))
 			map[decor.get(i).getYPos()/40][decor.get(i).getXPos()/40] = 'o';
 		
-		else if(decor.get(i).getClass() == Wall.class && ("res"+environment+"/WallDR").contentEquals(decor.
+		else if(decor.get(i) instanceof Wall && ("res"+environment+"/WallDR").contentEquals(decor.
 				get(i).getName()))
 			map[decor.get(i).getYPos()/40][decor.get(i).getXPos()/40] = 'p';
 	}
 	for(int j = 0;j < monster.size();j++){
-		if(monster.get(j).getClass() == Melee.class)
+		if(monster.get(j) instanceof Melee)
 			map[monster.get(j).getInitialYPos()/40][monster.get(j).getInitialXPos()/40] = 'd';	
 		
-		else if(monster.get(j).getClass() == Ranged.class)
+		else if(monster.get(j) instanceof Ranged)
 			map[monster.get(j).getInitialYPos()/40][monster.get(j).getInitialXPos()/40] = 'q';		
 		
-		else if(monster.get(j).getClass() == Underground.class)
+		else if(monster.get(j) instanceof Underground)
 			map[monster.get(j).getInitialYPos()/40][monster.get(j).getInitialXPos()/40] = 'f';		
 		
-		else if(monster.get(j).getClass() == Bomber.class)
+		else if(monster.get(j) instanceof Bomber)
 			map[monster.get(j).getInitialYPos()/40][monster.get(j).getInitialXPos()/40] = 's';	
 		
-		else if(monster.get(j).getClass() == Boss.class)
+		else if(monster.get(j) instanceof Boss)
 			map[monster.get(j).getInitialYPos()/40][monster.get(j).getInitialXPos()/40] = '.';	
 		
-		else if(monster.get(j).getClass() == MovingTrap.class)
+		else if(monster.get(j) instanceof MovingTrap)
 			map[monster.get(j).getInitialYPos()/40][monster.get(j).getInitialXPos()/40] = '7';
 	}
 	return map;

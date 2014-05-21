@@ -28,17 +28,9 @@ public class Thunder extends Item {
 		else{
 			y = yPos + 40 - yPos%40;
 		}
-		int pos[] = {x,y};
-		listPos.add(pos);
-		int pos2[] = {x+40,y};
-		listPos.add(pos2);
-		int pos3[] = {x-40,y};
-		listPos.add(pos3);
-		int pos4[] = {x,y+40};
-		listPos.add(pos4);
-		int pos5[] = {x,y-40};
-		listPos.add(pos5); 
-		
+		listPos.add( new int[]{x,y} );
+		for(Direction d : Direction.values())
+			listPos.add( new int[]{x + d.dx * 50, y + d.dy * 50} );
 	}
 	
 	public ArrayList<int[]> getListPos(){

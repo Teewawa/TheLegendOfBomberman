@@ -19,7 +19,6 @@ public class Monster extends Character {
 		super (lifePoint, xPos, yPos, speed, direction, name);
 		this.initialXPos = xPos;
 		this.initialYPos = yPos;
-		setPlayer(-1);
 	}
 	
 	public int getInitialXPos(){
@@ -40,31 +39,25 @@ public class Monster extends Character {
 	
 	public void setRandomDirection() {
 		List<Direction> dir = new ArrayList<Direction>();
-		if(getL() == 1)
-			dir.add(Direction.GAUCHE);
 		
-		if(getR() == 1)
-			dir.add(Direction.DROITE);
+		for(Direction d : Direction.values())
+			if(getDirSet(d) == 1)
+				dir.add(d);
 		
-		if(getU() == 1)
-			dir.add(Direction.HAUT);
-		
-		if(getD() == 1)
-			dir.add(Direction.BAS);
-		
-		int i = new Random().nextInt(dir.size());
-		setDirection( dir.get(i) );
+		if(! dir.isEmpty()) {
+			int i = new Random().nextInt(dir.size());
+			setDirection( dir.get(i) );
+		} else {
+			System.out.println("Monster.java : Vide !");
+		}
 	}
 	
 	public void move()
-
 	{
 		if(direction != null)
 		{
-			if(direction.dx != 0)
-				setXPos(getXPos() + direction.dx * getFrozen() * getL() * speed);
-			if(direction.dy != 0)
-				setXPos(getXPos() + direction.dy * getFrozen() * getL() * speed);
+			setXPos(getXPos() + direction.dx * getFrozen() * getDirSet(direction) * speed);
+			setYPos(getYPos() + direction.dy * getFrozen() * getDirSet(direction) * speed);
 			tick(4,5);
 		}
 	}
@@ -100,6 +93,10 @@ public class Monster extends Character {
 
 	public void setSpawner(boolean spawner) {
 		this.spawner = spawner;
+	}
+
+	public int[] nextPos(Direction dir) {
+		return nextPos(dir, getSpeed());
 	}
 	
 }

@@ -12,12 +12,13 @@ public class Link extends Character {
 	private int staff = -1; //0=fire //1=ice
 	private int numberCoin = 0;
 	private int maxLife = 3;
+	private String baseName;
 
 
-	public Link (int lifePoint, int xPos, int yPos, int speed, Direction direction, String image, int player)
+	public Link (int lifePoint, int xPos, int yPos, int speed, Direction direction, String baseName)
 	{
-		super(lifePoint, xPos, yPos, speed, direction, image);
-		setPlayer(player);
+		super(lifePoint, xPos, yPos, speed, direction, "res/" + baseName + "/" + baseName + "Run");
+		this.baseName = baseName;
 	}
 	
 
@@ -91,10 +92,8 @@ public class Link extends Character {
 	public void move(Direction d)
 	{
 		direction = d;
-		if(d.dx != 0)
-			setXPos(xPos + d.dx * getFrozen() * getR() * speed);
-		if(d.dy != 0)
-			setYPos(yPos + d.dy * getFrozen() * getU() * speed);
+		setXPos(xPos + d.dx * getFrozen() * getDirSet(d) * speed);
+		setYPos(yPos + d.dy * getFrozen() * getDirSet(d) * speed);
 		tick(6,5);
 	}
 	
@@ -120,7 +119,7 @@ public class Link extends Character {
 			}
 		}
 		if (k == 1 && getInvincible() == 1){
-			liste.add( new Bomb(x+5, y+5, "res/Bomb", getPlayer())) ;
+			liste.add( new Bomb(x+5, y+5, "res/Bomb", this)) ;
 		}
 	}
 	
@@ -132,21 +131,20 @@ public class Link extends Character {
 				frameArrow = 1;
 			}
 			
-			if(getPlayer() == 0) {
-				setName("res/Link/LinkArrow");
-			}
-			
-			else { 
-				setName("res/RedLink/RedLinkArrow");
-			}
+			setName("res/" + baseName + "/" + baseName + "Arrow");
 			
 			tick(6,5);
 			
 			if(getActualFrame() == 6){
-				liste.add(new Arrow(xPos, yPos, "res/Arrow", direction, getPlayer()));
+				liste.add(new Arrow(xPos, yPos, "res/Arrow", direction, this));
 				frameArrow = 0;
 				numberArrow--;
 			}
 		}
 	}
+
+	public int[] nextPos() {
+		return nextPos(getDirection(), getSpeed());
+	}
+
 }

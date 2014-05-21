@@ -1,17 +1,22 @@
 package tlob.model;
 
-public abstract class Item implements Tick{
+public abstract class Item implements Tick, Hitbox {
 	private int xPos;
 	private int yPos;
 	private String name;
 	private int actualFrame = 1;
 	private int t = 0;
-	private int myTick =0;
+	private int myTick = 0;
 	private int tick = 0;
+	
+	private int width;
+	private int height;
+	
 	public Item(int xPos,int yPos,String name){
 		this.xPos = xPos;
 		this.yPos = yPos;
 		this.name = name;
+		width = height = 35;
 	}
 	
 	public int getMyTick(){
@@ -50,6 +55,34 @@ public abstract class Item implements Tick{
 	public void setYPos(int yPos)
 	{ 
 		this.yPos = yPos;
+	}
+	
+	public int[] getPos() {
+		return new int[]{xPos, yPos};
+	}
+	
+	public int getWidth() {
+		return width;
+	}
+	
+	public int getHeight() {
+		return height;
+	}
+	
+	public int[] getSize() {
+		return new int[]{width, height};
+	}
+	
+	public void setPos(int[] pos)
+	{ 
+		xPos = pos[0];
+		yPos = pos[1];
+	}
+	
+	public int[] nextPos(Direction d, int vitesse) {
+		if(d == null)
+			return getPos();
+		return new int[]{xPos + d.dx * vitesse, yPos + d.dy * vitesse};
 	}
 	
 	public String getName()

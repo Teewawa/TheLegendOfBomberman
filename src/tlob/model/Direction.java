@@ -2,7 +2,7 @@ package tlob.model;
 
 public enum Direction {
 	// Ancien code : 0 = Gauche | 1 = Droite | 2 = Haut | 3 = Bas
-	GAUCHE(-1,0), DROITE(1,0), HAUT(0,1), BAS(0,-1);
+	GAUCHE(-1,0), DROITE(1,0), HAUT(0,-1), BAS(0,1);
 	
 	public final int dx;
 	public final int dy;
@@ -23,5 +23,9 @@ public enum Direction {
 		default:
 			return HAUT;
 		}
+	}
+	
+	public Direction inverse(boolean valeur) {
+		return valeur ? inverse() : this;
 	}
 }

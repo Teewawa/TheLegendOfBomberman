@@ -5,15 +5,15 @@ public class Bomb extends Item {
 	private int time;
 	private int mytick;
 	private Direction direction = null;
-	private int player;
+	private Link player;
 	
-	public Bomb(int xPos, int yPos, String name, int player)
+	public Bomb(int xPos, int yPos, String name, Link player)
 	{
 		super(xPos,yPos,name);	
 		this.player = player;
 	}
 	
-	public int getPlayer(){
+	public Link getPlayer(){
 		return this.player;
 	}
 	
@@ -44,11 +44,20 @@ public class Bomb extends Item {
 	
 	public void move(){
 		if(direction != null) {
-			if(direction.dx != 0)
-				setXPos(getXPos() + direction.dx * 5);
-			if(direction.dy != 0)
-				setYPos(getYPos() + direction.dy * 5);
+			setXPos(getXPos() + direction.dx * 5);
+			setYPos(getYPos() + direction.dy * 5);
 		}
+	}
+	
+	public int[] nextPos(Direction dir, int vitesse) {
+		if(dir == null)
+			return new int[]{getXPos(), getYPos()};
+		return new int[]{getXPos() + dir.dx * vitesse, getYPos() + dir.dy * vitesse};
+	}
+	
+	public void setPos(int[] pos) {
+		setXPos(pos[0]);
+		setYPos(pos[1]);
 	}
 	
 }

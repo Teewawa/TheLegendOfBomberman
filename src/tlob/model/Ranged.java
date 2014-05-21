@@ -11,10 +11,9 @@ public class Ranged extends Monster {
 	
 	
 	public List<Arrow> fireArrow(List<Arrow> liste){
-		liste.add(new Arrow(xPos, yPos, "res/Arrow", direction, getPlayer()));
+		liste.add(new Arrow(xPos, yPos, "res/Arrow", direction, null));
 		setName("res/RangedRun");
 		return liste;
-		 
 	}
 
 }

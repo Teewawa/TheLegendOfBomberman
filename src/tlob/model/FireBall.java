@@ -4,10 +4,10 @@ import java.util.ArrayList;
 
 public class FireBall extends Item{
 	
-	private int pos = 0;
 	private int mytick = 1;
 	private ArrayList<int[]> listpos;
 	private int damage = 1;
+	int attributPos = 0;
 	
 	public FireBall(int xPos, int yPos, String name,int xCible, int yCible, int xMax, int yMax){
 		super(xPos,yPos,name); 
@@ -16,16 +16,11 @@ public class FireBall extends Item{
 	
 	private void listeFireball1(int xCible, int yCible, int xMax, int yMax){
 		ArrayList<int[]> list = new ArrayList<int[]>();
-		for(int y=0; y<yMax; y++){
-			for(int x=0; x<xMax;x++){
-				if(distance(x,y,xCible,yCible)){
-					int[] tableau = new int[2];
-					tableau[0] = x;
-					tableau[1] = y;
-					list.add(tableau);
-				}
-			}
-		}
+		for(int y=0; y<yMax; y++)
+			for(int x=0; x<xMax;x++)
+				if(distance(x,y,xCible,yCible))
+					list.add(new int[]{x,y});
+		
 		listpos = new ArrayList<int[]>();
 		int cible = aim(getXPos(), getYPos(), xCible, yCible);
 		if(cible == 1 || cible ==2){
@@ -48,10 +43,6 @@ public class FireBall extends Item{
 		return this.damage;
 	}
 	
-	public int getPos(){
-		return this.pos;
-	}
-	
 	public ArrayList<int[]> getList(){
 		return this.listpos;
 	}
@@ -59,8 +50,7 @@ public class FireBall extends Item{
 	public void tick(){
 		this.mytick++;
 		if(this.mytick == 2) {
-			this.pos++;
-			this.pos++;
+			attributPos++;
 			mytick = 1;
 		}
 	}
@@ -88,9 +78,13 @@ public class FireBall extends Item{
 	}
 	
 	public void move(){
-		if(pos < listpos.size()){
-			setXPos(listpos.get(pos)[0]);
-			setYPos(listpos.get(pos)[1]);
+		if(attributPos < listpos.size()){
+			setXPos(listpos.get(attributPos)[0]);
+			setYPos(listpos.get(attributPos)[1]);
 		}
+	}
+
+	public int getAttributPos() {
+		return attributPos;
 	}
 }

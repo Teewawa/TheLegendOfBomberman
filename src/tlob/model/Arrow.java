@@ -1,15 +1,15 @@
 package tlob.model;
 
-public class Arrow extends Item implements Tick{
+public class Arrow extends Item {
 	
 	private Direction direction;
 	private int t = 0;
 	private int mytick;
 	private int x;
 	private int y;
-	private int player;
+	private Link player;
 	
-	public Arrow(int xPos, int yPos,String name, Direction direction, int player){
+	public Arrow(int xPos, int yPos,String name, Direction direction, Link player){
 		super(xPos,yPos,name);
 		this.x = xPos;
 		this.y = yPos;
@@ -17,7 +17,7 @@ public class Arrow extends Item implements Tick{
 		this.player = player;
 	}
 	
-	public int getPlayer(){
+	public Link getPlayer(){
 		return this.player;
 	}
 	
@@ -44,6 +44,8 @@ public class Arrow extends Item implements Tick{
 	}
 	
 	public void move(){
+		if(direction == null)
+			return;
 		if(direction.dx != 0)
 			setXPos(getXPos() + 10 * direction.dx);
 		if(direction.dy != 0)

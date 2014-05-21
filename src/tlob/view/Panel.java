@@ -3,6 +3,7 @@ package tlob.view;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Toolkit;
+import java.util.List;
 
 import javax.swing.JPanel;
 
@@ -43,78 +44,70 @@ public class Panel extends JPanel{
 	}
 	
 	private void paintMulti(Graphics g) {
-		g.drawImage(sideBackground,-10,70,null);
-		g.drawImage(sideBackground,15*40+decX,70,null);
+		g.drawImage(sideBackground, -10, 70, null);
+		g.drawImage(sideBackground, 15 * 40 + decX, 70,null);
 		
-		g.drawImage(statusBarVersus,0,0,null);
-		g.drawImage(statusBarVersus2,400,0,null);
+		g.drawImage(statusBarVersus, 0, 0, null);
+		g.drawImage(statusBarVersus2, 400, 0, null);
 		
-		for(int i =0; i<15;i++){
-			for(int j=0;j<15;j++) {
-				g.drawImage(bg,i*40+decX,j*40+decY,null);				
-			}
-		}
-		for(Decor decor : level.getDecor()) {
-			g.drawImage(loadIAD.stringToIAD(decor.getName()).getImage(), decor.getXPos()+decX, decor.getYPos()+decY,null);
-		}
+		for(int i = 0; i < 15; i++)
+			for(int j = 0; j < 15; j++)
+				drawDec(g, bg, i * 40, j * 40);
 		
-		for(Bomb bomb : level.getBomb()) {
-			g.drawImage(loadIAD.stringToIAD(bomb.getName()).getImage(), bomb.getXPos()+decX, bomb.getYPos()+decY,null);
-		}
+		for(Decor decor : level.getDecor())
+			drawDec(g, loadIAD.stringToIAD(decor.getName()).getImage(), decor.getXPos(), decor.getYPos());
 		
-		for(Bonus bonus : level.getBonus()){
-			g.drawImage(loadIAD.stringToIAD(bonus.getName()).getImage(), bonus.getXPos()+decX, bonus.getYPos()+decY,null);
-		}
+		for(Bomb bomb : level.getBomb())
+			drawDec(g, loadIAD.stringToIAD(bomb.getName()).getImage(), bomb.getXPos(), bomb.getYPos());
 		
-		for(Link link : level.getLink()) {
+		for(Bonus bonus : level.getBonus())
+			drawDec(g, loadIAD.stringToIAD(bonus.getName()).getImage(), bonus.getXPos(), bonus.getYPos());
+		
+		for(int j = 0; j < level.getLink().size(); j++)
+		{
+			Link link = level.getLink().get(j);
 			g.drawImage(loadIAD.stringToIAD(link.getName()).getImageAnime(link), link.getXPos()+decX, link.getYPos()+decY,null);
 			
-			int j=level.getLink().indexOf(link)*400;
+			for(int i = 0; i < link.getLifePoint(); i++) 
+				g.drawImage(loadIAD.stringToIAD("res/Heart").getImage(),80 + i*20 + j*400, 50,null);				
 			
-			for(int i=0; i<link.getLifePoint();i++) {
-				g.drawImage(loadIAD.stringToIAD("res/Heart").getImage(),80+i*20+j,50,null);				
+			g.drawImage(charNumber[link.getNumberBomb()],238 + j * 400, 62, null);			
+			g.drawImage(charNumber[link.getRangeBomb()],195 + j * 400, 62, null);
+			
+			g.drawImage(charNumber[link.getNumberArrow()],290 + j * 400, 62, null);
+			
+			if(link.getStaff() == 0) {
+				g.drawImage(loadIAD.stringToIAD("res/FireStaff").getImage(), 320 + j * 400, 53, null);
 			}
 			
-			g.drawImage(charNumber[link.getNumberBomb()],238+j,62,null);			
-			g.drawImage(charNumber[link.getRangeBomb()],195+j,62,null);
-			
-			g.drawImage(charNumber[link.getNumberArrow()],290+j,62,null);
-			
-			if(link.getStaff()==0) {
-			g.drawImage(loadIAD.stringToIAD("res/FireStaff").getImage(),320+j,53,null);
+			if(link.getStaff() == 1) {
+				g.drawImage(loadIAD.stringToIAD("res/IceStaff").getImage(), 320 + j * 400, 53, null);
 			}
-			
-			if(link.getStaff()==1) {
-				g.drawImage(loadIAD.stringToIAD("res/IceStaff").getImage(),320+j,53,null);
-				}
 		}
 		
-		for(Arrow arrow : level.getArrow()) {
-			g.drawImage(loadIAD.stringToIAD(arrow.getName()).getImageAnime(arrow), arrow.getXPos()+decX, arrow.getYPos()+decY,null);
-		}
+		for(Arrow arrow : level.getArrow())
+			drawDec(g, loadIAD.stringToIAD(arrow.getName()).getImageAnime(arrow), arrow.getXPos(), arrow.getYPos());
 		
-		for(Monster monster : level.getMonster()) {
-			g.drawImage(loadIAD.stringToIAD(monster.getName()).getImageAnime(monster), monster.getXPos()+decX, monster.getYPos()+decY,null);
-		}
 		
-		for(BombDeflagration bombDef : level.getBombDeflagration()) {
-			for(int j = 0; j< bombDef.getUp().size(); j++){
-				int indice = j == bombDef.getUp().size() - 1 ? 1 : 0;
-				g.drawImage(loadIAD.stringToIAD(bombDef.getName()).getImageDirection(Direction.HAUT).get(1), bombDef.getXPos()+decX, bombDef.getUp().get(j)+decY, null);
-			}
-			for(int j = 0; j< bombDef.getDown().size(); j++){
-				int indice = j == bombDef.getUp().size() - 1 ? 1 : 0;
-				g.drawImage(loadIAD.stringToIAD(bombDef.getName()).getImageDirection(Direction.BAS).get(indice), bombDef.getXPos()+decX, bombDef.getDown().get(j)+decY, null);
-			}
-			for(int j = 0; j< bombDef.getLeft().size(); j++){
-				int indice = j == bombDef.getUp().size()-1 ? 1 : 0;
-				g.drawImage(loadIAD.stringToIAD(bombDef.getName()).getImageDirection(Direction.GAUCHE).get(1), bombDef.getLeft().get(j)+decX, bombDef.getYPos()+decY, null);
-			}
-			for(int j = 0; j< bombDef.getRight().size(); j++){
-				int indice = j == bombDef.getUp().size()-1 ? 1 : 0;
-				g.drawImage(loadIAD.stringToIAD(bombDef.getName()).getImageDirection(Direction.DROITE).get(indice), bombDef.getRight().get(j)+decX, bombDef.getYPos()+decY,null);
-			}
-		}
+		for(Monster monster : level.getMonster())
+			drawDec(g, loadIAD.stringToIAD(monster.getName()).getImageAnime(monster), monster.getXPos(), monster.getYPos());
+		
+		for(BombDeflagration bombDef : level.getBombDeflagration())
+			for(Direction dir : Direction.values())
+				for(int[] n : bombDef.getListe(dir))
+					drawDec(g, loadIAD.stringToIAD(bombDef.getName()).getImageDirection(dir).get(1), n[0], n[1]);
+	}
+	
+	private void drawNumber(Graphics g, int number, int x, int y) {
+		do { // le do assure de le faire au moins une fois (cas où number == 0)
+			g.drawImage(charNumber[number % 10], x, y, null);
+			x -= 5;
+			number /= 10;
+		} while(number != 0);
+	}
+	
+	private void drawDec(Graphics g, Image img, int x, int y) {
+		g.drawImage(img, decX + x, decY + y, null);
 	}
 	
 	private void paintSolo(Graphics g) {
@@ -124,138 +117,84 @@ public class Panel extends JPanel{
 			}
 		}
 		for(Decor decor : level.getDecor()) {
-			
-			if(decor instanceof Treasure){
-				g.drawImage(loadIAD.stringToIAD(decor.getName()).getImageAnime(decor), decor.getXPos()+decX, decor.getYPos()+decY,null);
-			}
-			else{
-				g.drawImage(loadIAD.stringToIAD(decor.getName()).getImage(), decor.getXPos()+decX, decor.getYPos()+decY,null);
-
-			}
+			Image img = decor instanceof Treasure ?
+					loadIAD.stringToIAD(decor.getName()).getImageAnime(decor) :
+					loadIAD.stringToIAD(decor.getName()).getImage();
+					
+			drawDec(g, img, decor.getXPos(), decor.getYPos());
 		}
-		g.drawImage(sideBackground,-10,70,null);
-		g.drawImage(sideBackground,15*40+decX,70,null);
+		g.drawImage(sideBackground, -10, 70, null);
+		g.drawImage(sideBackground, decX + 15 * 40, 70, null);
 		
-		g.drawImage(statusBar,0,0,null);
+		g.drawImage(statusBar, 0, 0, null);
 		
-		for(Bomb bomb : level.getBomb()) {
-			g.drawImage(loadIAD.stringToIAD(bomb.getName()).getImage(), bomb.getXPos()+decX, bomb.getYPos()+decY,null);
-		}
+		for(Bomb bomb : level.getBomb())
+			drawDec(g, loadIAD.stringToIAD(bomb.getName()).getImage(), bomb.getXPos(), bomb.getYPos());
 		
-		for(Bonus bonus : level.getBonus()){
-			g.drawImage(loadIAD.stringToIAD(bonus.getName()).getImage(), bonus.getXPos()+decX, bonus.getYPos()+decY,null);
-		}
+		for(Bonus bonus : level.getBonus())
+			drawDec(g, loadIAD.stringToIAD(bonus.getName()).getImage(), bonus.getXPos(), bonus.getYPos());
 		
-		for(Thunder thunder : level.getThunder()){
-			for(int i = 0; i < thunder.getListPos().size(); i++){
-				g.drawImage(loadIAD.stringToIAD(thunder.getName()).getImage(thunder), thunder.getListPos().get(i)[0]+decX, thunder.getListPos().get(i)[1]+decY,null);
-			}
-		}
+		for(Thunder thunder : level.getThunder())
+			for(int[] pos : thunder.getListPos())
+				drawDec(g, loadIAD.stringToIAD(thunder.getName()).getImage(thunder), pos[0], pos[1]);
 		
 		for(Link link : level.getLink()) {
-			if(link.getName().contentEquals("res/Link/LinkOpen")){
-				g.drawImage(loadIAD.stringToIAD(link.getName()).getImageNoDirection(link), link.getXPos()+decX, link.getYPos()+decY,null);
-			}
-			else{
-				g.drawImage(loadIAD.stringToIAD(link.getName()).getImageAnime(link), link.getXPos()+decX, link.getYPos()+decY,null);
-			}
+			Image img = link.getName().contentEquals("res/Link/LinkOpen") ?
+					loadIAD.stringToIAD(link.getName()).getImageNoDirection(link) :
+					loadIAD.stringToIAD(link.getName()).getImageAnime(link);
 			
-			int centaineRubis=(link.getNumberCoin()-link.getNumberCoin()%100)/100;
-			int dizaineRubis=((link.getNumberCoin()-centaineRubis*100)-(link.getNumberCoin()-centaineRubis*100)%10)/10;
-			int dizaineArrow = (link.getNumberArrow()-link.getNumberArrow()%10)/10;
+			drawDec(g, img, link.getXPos(), link.getYPos());
 			
-			for(int i=0; i<link.getLifePoint();i++) {
-				g.drawImage(loadIAD.stringToIAD("res/Heart").getImage(),153+i*20,50,null);				
-			}
+			for(int i = 0; i < link.getLifePoint(); i++)
+				g.drawImage(loadIAD.stringToIAD("res/Heart").getImage(), 153 + i * 20, 50, null);				
 			
-			g.drawImage(charNumber[link.getNumberBomb()],502,62,null);			
-			g.drawImage(charNumber[link.getRangeBomb()],412,62,null);
+			drawNumber(g, link.getNumberBomb(), 502, 62);
+			drawNumber(g, link.getRangeBomb(), 412, 62);
+			drawNumber(g, link.getNumberCoin(), 600, 62);
+			drawNumber(g, link.getNumberArrow(), 312, 62);
 			
-			if(centaineRubis!=0) {
-				g.drawImage(charNumber[centaineRubis],590,62,null);
-			}
+			if(link.getStaff() == 0)
+				g.drawImage(loadIAD.stringToIAD("res/FireStaff").getImage(), 650, 53, null);
 			
-			if(dizaineRubis!=0) {
-				g.drawImage(charNumber[dizaineRubis],595,62,null);
-			}
-			g.drawImage(charNumber[link.getNumberCoin()-centaineRubis*100-dizaineRubis*10],600,62,null);
-			
-			if(dizaineArrow!=0) {
-				g.drawImage(charNumber[dizaineArrow],307,62,null);
-			}
-			
-			g.drawImage(charNumber[link.getNumberArrow()-dizaineArrow*10],312,62,null);
-			
-			if(link.getStaff()==0) {
-			g.drawImage(loadIAD.stringToIAD("res/FireStaff").getImage(),650,53,null);
-			}
-			
-			if(link.getStaff()==1) {
-				g.drawImage(loadIAD.stringToIAD("res/IceStaff").getImage(),650,53,null);
-				}
+			if(link.getStaff() == 1)
+				g.drawImage(loadIAD.stringToIAD("res/IceStaff").getImage(), 650, 53, null);
 		}
 		
 		for(Arrow arrow : level.getArrow()) {
-			g.drawImage(loadIAD.stringToIAD(arrow.getName()).getImageAnime(arrow), arrow.getXPos()+decX, arrow.getYPos()+decY,null);
+			drawDec(g, loadIAD.stringToIAD(arrow.getName()).getImageAnime(arrow), arrow.getXPos(), arrow.getYPos());
 		}
 		
 		for(Monster monster : level.getMonster()) {
-			if(monster.getClass() == Boss.class){
-				g.drawImage(loadIAD.stringToIAD(monster.getName()).getImage((Boss)monster), monster.getXPos()+decX, monster.getYPos()+decY,null);
+			if(monster instanceof Boss){
+				drawDec(g, loadIAD.stringToIAD(monster.getName()).getImage((Boss)monster), monster.getXPos(), monster.getYPos());
 			}
-			else if(monster.getClass() == Underground.class){
-				if(((Underground) monster).getUnderground()){
-					g.drawImage(loadIAD.stringToIAD(monster.getName()).getImage(), monster.getXPos()+decX, monster.getYPos()+decY,null);
-				}
-				else{
-					g.drawImage(loadIAD.stringToIAD(monster.getName()).getImageNoDirection(monster), monster.getXPos()+decX, monster.getYPos()+decY,null);
-				}
+			else if(monster instanceof Underground){
+				if(((Underground) monster).getUnderground())
+					drawDec(g, loadIAD.stringToIAD(monster.getName()).getImage(), monster.getXPos(), monster.getYPos());
+				else
+					drawDec(g, loadIAD.stringToIAD(monster.getName()).getImageNoDirection(monster), monster.getXPos(), monster.getYPos());
 			}
-			else if(monster.getClass() == MovingTrap.class){
-				g.drawImage(loadIAD.stringToIAD(monster.getName()).getImageNoDirection(monster), monster.getXPos()+decX, monster.getYPos()+decY,null);
-			}
-			else{
-				g.drawImage(loadIAD.stringToIAD(monster.getName()).getImageAnime(monster), monster.getXPos()+decX, monster.getYPos()+decY,null);
-			}
+			else if(monster instanceof MovingTrap)
+				drawDec(g, loadIAD.stringToIAD(monster.getName()).getImageNoDirection(monster), monster.getXPos(), monster.getYPos());
+			else
+				drawDec(g, loadIAD.stringToIAD(monster.getName()).getImageAnime(monster), monster.getXPos(), monster.getYPos());
 		}
 		
 		for(BombDeflagration bombDef : level.getBombDeflagration()) {
-			for(int j = 0; j< bombDef.getUp().size(); j++){
-				if(j==bombDef.getUp().size()-1){
-					g.drawImage(loadIAD.stringToIAD(bombDef.getName()).getImageDirection(Direction.HAUT).get(1), bombDef.getXPos()+decX, bombDef.getUp().get(j)+decY,null);
-				}
-				else{
-					g.drawImage(loadIAD.stringToIAD(bombDef.getName()).getImageDirection(Direction.HAUT).get(0), bombDef.getXPos()+decX, bombDef.getUp().get(j)+decY,null);
-				}
-			}
-			for(int j = 0; j< bombDef.getDown().size(); j++){
-				if(j==bombDef.getUp().size()-1){
-					g.drawImage(loadIAD.stringToIAD(bombDef.getName()).getImageDirection(Direction.BAS).get(1), bombDef.getXPos()+decX, bombDef.getDown().get(j)+decY,null);
-				}
-				else{
-					g.drawImage(loadIAD.stringToIAD(bombDef.getName()).getImageDirection(Direction.BAS).get(0), bombDef.getXPos()+decX, bombDef.getDown().get(j)+decY,null);
-				}
-			}
-			for(int j = 0; j< bombDef.getLeft().size(); j++){
-				if(j==bombDef.getUp().size()-1){
-					g.drawImage(loadIAD.stringToIAD(bombDef.getName()).getImageDirection(Direction.GAUCHE).get(1), bombDef.getLeft().get(j)+decX, bombDef.getYPos()+decY,null);
-				}
-				else{
-					g.drawImage(loadIAD.stringToIAD(bombDef.getName()).getImageDirection(Direction.GAUCHE).get(0), bombDef.getLeft().get(j)+decX, bombDef.getYPos()+decY,null);
-				}
-			}
-			for(int j = 0; j< bombDef.getRight().size(); j++){
-				if(j==bombDef.getUp().size()-1){
-					g.drawImage(loadIAD.stringToIAD(bombDef.getName()).getImageDirection(Direction.DROITE).get(1), bombDef.getRight().get(j)+decX, bombDef.getYPos()+decY,null);
-				}
-				else{
-					g.drawImage(loadIAD.stringToIAD(bombDef.getName()).getImageDirection(Direction.DROITE).get(0), bombDef.getRight().get(j)+decX, bombDef.getYPos()+decY,null);
+			for(Direction dir : Direction.values()) {
+				List<int[]> liste = bombDef.getListe(dir);
+				for(int j = 0; j < liste.size(); j++){
+					int[] newpos = liste.get(j);
+					
+					int indice = j == liste.size() - 1 ? 1 : 0;
+					List<Image> iad = loadIAD.stringToIAD(bombDef.getName()).getImageDirection(dir);
+					drawDec(g, iad.get(indice), newpos[0], newpos[1]);
 				}
 			}
 		}
 		
 		for(FireBall fireBall : level.getFireBall()) {
-			g.drawImage(loadIAD.stringToIAD(fireBall.getName()).getImage(), fireBall.getXPos()+decX, fireBall.getYPos()+decY,null);
+			drawDec(g, loadIAD.stringToIAD(fireBall.getName()).getImage(), fireBall.getXPos(), fireBall.getYPos());
 		}
 		
 	}
@@ -290,12 +229,12 @@ public class Panel extends JPanel{
 			g.drawImage(charNumber[link.getNumberArrow()-dizaineArrow*10],312,62,null);
 			
 			if(link.getStaff()==0) {
-			g.drawImage(loadIAD.stringToIAD("res/FireStaff").getImage(),650,53,null);
+				g.drawImage(loadIAD.stringToIAD("res/FireStaff").getImage(),650,53,null);
 			}
 			
 			if(link.getStaff()==1) {
 				g.drawImage(loadIAD.stringToIAD("res/IceStaff").getImage(),650,53,null);
-				}
+			}
 		}
 		for(Menu store : level.getStore()){
 			g.drawImage(loadIAD.stringToIAD(store.getName()).getImage(), store.getXPos(), store.getYPos()-decY,null);
@@ -316,42 +255,44 @@ public class Panel extends JPanel{
 	}
 	
 	private void paintMultiWin(Graphics g) {
-		g.drawImage(linkwin,0,0,null);
-		for(int i = 0; i < level.getLink().size(); i ++){
-			if (level.getLink().get(i).getLifePoint()<= 0){
-				if(i == 1){
-					g.drawImage(linkwin,0,0,null);
-				}
-				else{
-					g.drawImage(redlinkwin,0,0,null);
-				}						
-			}
-		}
+		g.drawImage(linkwin, 0, 0, null);
+		for(int i = 0; i < level.getLink().size(); i ++)
+			if (level.getLink().get(i).getLifePoint() <= 0)
+				g.drawImage(i == 1 ? linkwin : redlinkwin, 0, 0, null);
 	}
 	
 	
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		
-		if(level.getStatus() == Status.MENU)
+		switch(level.getStatus()) {
+		case MENU:
 			paintMenu(g);
+			break;
 		
-		else if (level.getStatus() == Status.GAME_OVER)
+		case GAME_OVER:
 			paintGameOver(g);
+			break;
 		
-		else if (level.getStatus() == Status.MULTI_WIN)
+		case MULTI_WIN:
 			paintMultiWin(g);
-		
-		else if (level.getStatus() == Status.STORE)
+			break;
+			
+		case STORE:
 			paintStore(g);
+			break;
 		
-		else if (level.getStatus() == Status.SOLO)
+		case SOLO:
 			paintSolo(g);
+			break;
 		
-		else if (level.getStatus() == Status.GAME_OVER_2)
+		case GAME_OVER_2:
 			paintGameOver2(g);
-		
-		else if(level.getStatus() == Status.MULTI)
+			break;
+			
+		case MULTI:
 			paintMulti(g);
+			break;
+		}
 	}
 }

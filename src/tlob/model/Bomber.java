@@ -13,31 +13,24 @@ public class Bomber extends Monster {
 		setTime(40);
 	}
 	
-	public List<Bomb> setBomb(List<Bomb> liste)
+	public void setBomb(List<Bomb> liste)
 	{
-		int x,y;
+		
 		int k = 1;
-		if(xPos%40 <= 20){
-			x = xPos - xPos%40;
-		}
-		else{
-			x = xPos + 40 - xPos%40;
-		}
-		if(yPos%40 <= 20){
-			y = yPos - yPos%40;
-		}
-		else{
-			y = yPos + 40 - yPos%40;
-		}
-		for(int i = 0; i < liste.size(); i++){
-			if(x + 5 == liste.get(i).getXPos() && y + 5 == liste.get(i).getYPos()){
+		int x = xPos%40 <= 20 ?
+				xPos - xPos % 40 :
+			    xPos + 40 - xPos % 40;
+		
+		int y = yPos % 40 <= 20 ?
+				yPos - yPos % 40 :
+			    yPos + 40 - yPos % 40;
+		
+		for(Bomb b : liste)
+			if(x + 5 == b.getXPos() && y + 5 == b.getYPos())
 				k = 0;
-			}
-		}
-		if (k == 1){
-			liste.add( new Bomb(x+5, y+5, "res/Monster/BombMonster", -1)) ;
-		}
-		return liste;
+				
+		if (k == 1)
+			liste.add( new Bomb(x+5, y+5, "res/Monster/BombMonster", null)) ;
 	}
 	
 	public void bombTick(int frames, int constante) {
