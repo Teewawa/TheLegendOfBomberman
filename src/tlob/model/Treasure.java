@@ -10,8 +10,8 @@ public class Treasure extends Decor {
 	
 	public Treasure(int xPos, int yPos, String name,int bonusType) {
 		super(xPos,yPos,name);
-		this.bonusType=bonusType;
-		}
+		this.bonusType = bonusType;
+	}
 	
 	
 	public int getBonusType() {

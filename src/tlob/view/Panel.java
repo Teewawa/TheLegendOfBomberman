@@ -292,7 +292,7 @@ public class Panel extends JPanel{
 			paintSolo(g);
 			break;
 		
-		case GAME_OVER_2:
+		case PAUSE:
 			paintGameOver2(g);
 			break;
 			

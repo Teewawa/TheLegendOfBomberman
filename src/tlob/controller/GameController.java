@@ -315,7 +315,7 @@ public class GameController implements KeyListener{
 		Booleans bouton = boutons.get(0);
 		
 		if (pausePressed && pressedOnce){
-			status = Status.GAME_OVER;
+			status = Status.PAUSE;
 			level.setStatus(status);
 			pressedOnce = false;
 		}
@@ -733,7 +733,7 @@ public class GameController implements KeyListener{
 		}
 	}
 	
-	public void updateGameOver2() {
+	public void updatePause() {
 		if (pausePressed && pressedOnce){
 			status = Status.SOLO;
 			level.setStatus(status);
@@ -783,8 +783,8 @@ public class GameController implements KeyListener{
 		else if(s == Status.MULTI)
 			updateMulti();
 	
-		else if(s == Status.GAME_OVER_2)
-			updateGameOver2();
+		else if(s == Status.PAUSE)
+			updatePause();
 			
 		else if(s == Status.SOLO)
 			updateSolo();
