@@ -101,4 +101,25 @@ public abstract class Decor implements Tick, Hitbox {
 	public void setActualFrame(int actualFrame) {
 		this.actualFrame = actualFrame;
 	}
+	
+	public int[] getCenter() {
+		return new int[]{xPos + width / 2, yPos + height / 2};
+	}
+	
+	public int[] getCoordCase() {
+		int[] c = getCenter();
+		int i = (c[0] - 20) / 40 + ( (c[0] - 20) % 40 <= 20 ? 0 : 1);
+		int j = (c[1] - 20) / 40 + ( (c[1] - 20) % 40 <= 20 ? 0 : 1);
+		return new int[]{i, j};
+	}
+	
+	public int[] getTopLeftCase() {
+		int[] coord = getCoordCase();
+		return new int[]{coord[0] * 40, coord[1] * 40};
+	}
+	
+	public int[] getCenterCase() {
+		int[] topLeft = getTopLeftCase();
+		return new int[]{topLeft[0] + 20, topLeft[1] + 20};
+	}
 }

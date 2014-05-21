@@ -1,14 +1,14 @@
 package tlob.model;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 public class BombDeflagration extends Item {
 	
 	private Link player;
-	private int dirSetHaut = 1; 
-	private int dirSetBas = 1;
-	private int dirSetGauche = 1;
-	private int dirSetDroite = 1;
+	private Set<Direction> dirs = new HashSet<Direction>();
 	private ArrayList<int[]> up;
 	private ArrayList<int[]> down;
 	private ArrayList<int[]> left;
@@ -20,6 +20,7 @@ public class BombDeflagration extends Item {
 	public BombDeflagration(int xPos, int yPos, String name, Link player){
 		super(xPos,yPos, name); 
 		this.player = player;
+		setAllDir();
 	}
 	
 	public int[][][] listeExplosion(int rangeBomb){ //x,y = milieu de la case
@@ -61,7 +62,6 @@ public class BombDeflagration extends Item {
 	
 	@Override
 	public void tick(int frames, int constante) {
-		// TODO Auto-generated method stub
 		
 	}
 
@@ -74,42 +74,20 @@ public class BombDeflagration extends Item {
 		}
 	}
 	
-	public int getDirSet(Direction d){
-		if(d == Direction.GAUCHE)
-			return dirSetGauche;
-		else if(d == Direction.DROITE)
-			return dirSetDroite;
-		else if(d == Direction.HAUT)
-			return dirSetHaut;
-		else
-			return dirSetBas;
+	public boolean isDirSet(Direction d){
+		return dirs.contains(d);
 	}
 	
 	public void unsetDir(Direction d) {
-		if(d == null)
-			return;
-		if(d == Direction.GAUCHE)
-			dirSetGauche = 0;
-		else if(d == Direction.DROITE)
-			dirSetDroite = 0;
-		else if(d == Direction.HAUT)
-			dirSetHaut = 0;
-		else if(d == Direction.BAS)
-			dirSetBas = 0;
+		dirs.remove(d);
 	}
 	
 	public void setAllDir() {
-		dirSetDroite = 1;
-		dirSetGauche = 1;
-		dirSetBas = 1;
-		dirSetHaut = 1;
+		dirs.addAll( Arrays.asList(Direction.values()));
 	}
 	
 	public void unsetAllDir() {
-		dirSetDroite = 0;
-		dirSetGauche = 0;
-		dirSetBas = 0;
-		dirSetHaut = 0;
+		dirs.clear();
 	}
 
 }

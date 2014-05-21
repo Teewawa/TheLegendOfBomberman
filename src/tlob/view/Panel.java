@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
+import sun.java2d.loops.DrawRect;
 import tlob.controller.Status;
 import tlob.model.*;
 
@@ -52,16 +53,16 @@ public class Panel extends JPanel{
 		
 		for(int i = 0; i < 15; i++)
 			for(int j = 0; j < 15; j++)
-				drawDec(g, bg, i * 40, j * 40);
+				drawDec(g, bg, i * 40, j * 40, 1000, 1000);
 		
 		for(Decor decor : level.getDecor())
-			drawDec(g, loadIAD.stringToIAD(decor.getName()).getImage(), decor.getXPos(), decor.getYPos());
+			drawDec(g, loadIAD.stringToIAD(decor.getName()).getImage(), decor);
 		
 		for(Bomb bomb : level.getBomb())
-			drawDec(g, loadIAD.stringToIAD(bomb.getName()).getImage(), bomb.getXPos(), bomb.getYPos());
+			drawDec(g, loadIAD.stringToIAD(bomb.getName()).getImage(), bomb);
 		
 		for(Bonus bonus : level.getBonus())
-			drawDec(g, loadIAD.stringToIAD(bonus.getName()).getImage(), bonus.getXPos(), bonus.getYPos());
+			drawDec(g, loadIAD.stringToIAD(bonus.getName()).getImage(), bonus);
 		
 		for(int j = 0; j < level.getLink().size(); j++)
 		{
@@ -86,16 +87,16 @@ public class Panel extends JPanel{
 		}
 		
 		for(Arrow arrow : level.getArrow())
-			drawDec(g, loadIAD.stringToIAD(arrow.getName()).getImageAnime(arrow), arrow.getXPos(), arrow.getYPos());
+			drawDec(g, loadIAD.stringToIAD(arrow.getName()).getImageAnime(arrow), arrow);
 		
 		
 		for(Monster monster : level.getMonster())
-			drawDec(g, loadIAD.stringToIAD(monster.getName()).getImageAnime(monster), monster.getXPos(), monster.getYPos());
+			drawDec(g, loadIAD.stringToIAD(monster.getName()).getImageAnime(monster), monster);
 		
 		for(BombDeflagration bombDef : level.getBombDeflagration())
 			for(Direction dir : Direction.values())
 				for(int[] n : bombDef.getListe(dir))
-					drawDec(g, loadIAD.stringToIAD(bombDef.getName()).getImageDirection(dir).get(1), n[0], n[1]);
+					drawDec(g, loadIAD.stringToIAD(bombDef.getName()).getImageDirection(dir).get(1), n[0], n[1], bombDef.getWidth(), bombDef.getHeight());
 	}
 	
 	private void drawNumber(Graphics g, int number, int x, int y) {
@@ -106,8 +107,13 @@ public class Panel extends JPanel{
 		} while(number != 0);
 	}
 	
-	private void drawDec(Graphics g, Image img, int x, int y) {
+	private void drawDec(Graphics g, Image img, int x, int y, int w, int h) {
 		g.drawImage(img, decX + x, decY + y, null);
+		g.drawRect(decX + x, decY + y, w, h);
+	}
+	
+	private void drawDec(Graphics g, Image img, Hitbox h) {
+		drawDec(g, img, h.getXPos(), h.getYPos(), h.getWidth(), h.getHeight());
 	}
 	
 	private void paintSolo(Graphics g) {
@@ -121,7 +127,7 @@ public class Panel extends JPanel{
 					loadIAD.stringToIAD(decor.getName()).getImageAnime(decor) :
 					loadIAD.stringToIAD(decor.getName()).getImage();
 					
-			drawDec(g, img, decor.getXPos(), decor.getYPos());
+			drawDec(g, img, decor);
 		}
 		g.drawImage(sideBackground, -10, 70, null);
 		g.drawImage(sideBackground, decX + 15 * 40, 70, null);
@@ -129,21 +135,21 @@ public class Panel extends JPanel{
 		g.drawImage(statusBar, 0, 0, null);
 		
 		for(Bomb bomb : level.getBomb())
-			drawDec(g, loadIAD.stringToIAD(bomb.getName()).getImage(), bomb.getXPos(), bomb.getYPos());
+			drawDec(g, loadIAD.stringToIAD(bomb.getName()).getImage(), bomb);
 		
 		for(Bonus bonus : level.getBonus())
-			drawDec(g, loadIAD.stringToIAD(bonus.getName()).getImage(), bonus.getXPos(), bonus.getYPos());
+			drawDec(g, loadIAD.stringToIAD(bonus.getName()).getImage(), bonus);
 		
 		for(Thunder thunder : level.getThunder())
 			for(int[] pos : thunder.getListPos())
-				drawDec(g, loadIAD.stringToIAD(thunder.getName()).getImage(thunder), pos[0], pos[1]);
+				drawDec(g, loadIAD.stringToIAD(thunder.getName()).getImage(thunder), pos[0], pos[1], thunder.getWidth(), thunder.getHeight());
 		
 		for(Link link : level.getLink()) {
 			Image img = link.getName().contentEquals("res/Link/LinkOpen") ?
 					loadIAD.stringToIAD(link.getName()).getImageNoDirection(link) :
 					loadIAD.stringToIAD(link.getName()).getImageAnime(link);
 			
-			drawDec(g, img, link.getXPos(), link.getYPos());
+			drawDec(g, img, link);
 			
 			for(int i = 0; i < link.getLifePoint(); i++)
 				g.drawImage(loadIAD.stringToIAD("res/Heart").getImage(), 153 + i * 20, 50, null);				
@@ -161,23 +167,23 @@ public class Panel extends JPanel{
 		}
 		
 		for(Arrow arrow : level.getArrow()) {
-			drawDec(g, loadIAD.stringToIAD(arrow.getName()).getImageAnime(arrow), arrow.getXPos(), arrow.getYPos());
+			drawDec(g, loadIAD.stringToIAD(arrow.getName()).getImageAnime(arrow), arrow);
 		}
 		
 		for(Monster monster : level.getMonster()) {
 			if(monster instanceof Boss){
-				drawDec(g, loadIAD.stringToIAD(monster.getName()).getImage((Boss)monster), monster.getXPos(), monster.getYPos());
+				drawDec(g, loadIAD.stringToIAD(monster.getName()).getImage((Boss)monster), monster);
 			}
 			else if(monster instanceof Underground){
 				if(((Underground) monster).getUnderground())
-					drawDec(g, loadIAD.stringToIAD(monster.getName()).getImage(), monster.getXPos(), monster.getYPos());
+					drawDec(g, loadIAD.stringToIAD(monster.getName()).getImage(), monster);
 				else
-					drawDec(g, loadIAD.stringToIAD(monster.getName()).getImageNoDirection(monster), monster.getXPos(), monster.getYPos());
+					drawDec(g, loadIAD.stringToIAD(monster.getName()).getImageNoDirection(monster), monster);
 			}
 			else if(monster instanceof MovingTrap)
-				drawDec(g, loadIAD.stringToIAD(monster.getName()).getImageNoDirection(monster), monster.getXPos(), monster.getYPos());
+				drawDec(g, loadIAD.stringToIAD(monster.getName()).getImageNoDirection(monster), monster);
 			else
-				drawDec(g, loadIAD.stringToIAD(monster.getName()).getImageAnime(monster), monster.getXPos(), monster.getYPos());
+				drawDec(g, loadIAD.stringToIAD(monster.getName()).getImageAnime(monster), monster);
 		}
 		
 		for(BombDeflagration bombDef : level.getBombDeflagration()) {
@@ -188,13 +194,13 @@ public class Panel extends JPanel{
 					
 					int indice = j == liste.size() - 1 ? 1 : 0;
 					List<Image> iad = loadIAD.stringToIAD(bombDef.getName()).getImageDirection(dir);
-					drawDec(g, iad.get(indice), newpos[0], newpos[1]);
+					drawDec(g, iad.get(indice), newpos[0], newpos[1], bombDef.getWidth(), bombDef.getHeight());
 				}
 			}
 		}
 		
 		for(FireBall fireBall : level.getFireBall()) {
-			drawDec(g, loadIAD.stringToIAD(fireBall.getName()).getImage(), fireBall.getXPos(), fireBall.getYPos());
+			drawDec(g, loadIAD.stringToIAD(fireBall.getName()).getImage(), fireBall);
 		}
 		
 	}

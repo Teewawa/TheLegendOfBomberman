@@ -17,20 +17,17 @@ public class Bomber extends Monster {
 	{
 		
 		int k = 1;
-		int x = xPos%40 <= 20 ?
-				xPos - xPos % 40 :
-			    xPos + 40 - xPos % 40;
-		
-		int y = yPos % 40 <= 20 ?
-				yPos - yPos % 40 :
-			    yPos + 40 - yPos % 40;
+		int[] c = getCenterCase();
 		
 		for(Bomb b : liste)
-			if(x + 5 == b.getXPos() && y + 5 == b.getYPos())
+			if(b.getCenter().equals(c))
 				k = 0;
 				
-		if (k == 1)
-			liste.add( new Bomb(x+5, y+5, "res/Monster/BombMonster", null)) ;
+		if (k == 1) {
+			Bomb b = new Bomb(xPos, yPos, "res/Monster/BombMonster", null);
+			b.centerOn(c);
+			liste.add(b);
+		}
 	}
 	
 	public void bombTick(int frames, int constante) {

@@ -41,7 +41,7 @@ public class Monster extends Character {
 		List<Direction> dir = new ArrayList<Direction>();
 		
 		for(Direction d : Direction.values())
-			if(getDirSet(d) == 1)
+			if(isDirSet(d))
 				dir.add(d);
 		
 		if(! dir.isEmpty()) {
@@ -56,8 +56,10 @@ public class Monster extends Character {
 	{
 		if(direction != null)
 		{
-			setXPos(getXPos() + direction.dx * getFrozen() * getDirSet(direction) * speed);
-			setYPos(getYPos() + direction.dy * getFrozen() * getDirSet(direction) * speed);
+			if(isDirSet(direction)) {
+				setXPos(getXPos() + direction.dx * getFrozen() * speed);
+				setYPos(getYPos() + direction.dy * getFrozen() * speed);
+			}
 			tick(4,5);
 		}
 	}

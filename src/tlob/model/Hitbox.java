@@ -8,4 +8,9 @@ public interface Hitbox {
 	int getWidth();
 	int getHeight();
 	int[] getSize();
+	
+	int[] getCenter();
+	int[] getCoordCase();
+	int[] getTopLeftCase();
+	int[] getCenterCase();
 }

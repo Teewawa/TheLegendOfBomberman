@@ -7,7 +7,7 @@ import tlob.controller.Status;
 
 public class Level{
 	
-	private Map map;
+	private ModelMap map;
 	private List<Link> link;
 	private List<Decor> decor;
 	private List<Monster> monster;
@@ -28,7 +28,7 @@ public class Level{
 		this.store = store;
 	}
 	
-	public void createLevel(Map map){
+	public void createLevel(ModelMap map){
 		this.map = map;
 		char[][] tableau = new char[16][16];
 		tableau = map.loadRoom();
@@ -43,7 +43,7 @@ public class Level{
 		thunder = new ArrayList<Thunder>();
 	}
 
-	public Map getMap(){
+	public ModelMap getMap(){
 		return this.map;
 	}
 	
@@ -51,7 +51,7 @@ public class Level{
 		return this.store;
 	}
 	
-	public void setMap(Map map){
+	public void setMap(ModelMap map){
 		this.map = map;
 	}
 	public void setStatus(Status status){

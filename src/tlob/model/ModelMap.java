@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Map {
+public class ModelMap {
 	
 	private int length;
 	private int width;
@@ -17,7 +17,7 @@ public class Map {
 	private String roomColumn;
 	private String environment ="/Desert";
 	
-	public Map(int length, int width, String level, String roomLine, String roomColumn)
+	public ModelMap(int length, int width, String level, String roomLine, String roomColumn)
 	{
 		this.length = length;
 		this.width = width;

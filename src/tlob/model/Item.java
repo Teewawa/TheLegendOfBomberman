@@ -9,10 +9,10 @@ public abstract class Item implements Tick, Hitbox {
 	private int myTick = 0;
 	private int tick = 0;
 	
-	private int width;
-	private int height;
+	protected int width;
+	protected int height;
 	
-	public Item(int xPos,int yPos,String name){
+	public Item(int xPos,int yPos, String name){
 		this.xPos = xPos;
 		this.yPos = yPos;
 		this.name = name;
@@ -122,5 +122,30 @@ public abstract class Item implements Tick, Hitbox {
 				this.actualFrame = 1;
 		}
 	}
-
+	
+	public int[] getCenter() {
+		return new int[]{xPos + width / 2, yPos + height / 2};
+	}
+	
+	public int[] getCoordCase() {
+		int[] c = getCenter();
+		int i = (c[0] - 20) / 40 + ( (c[0] - 20) % 40 <= 20 ? 0 : 1);
+		int j = (c[1] - 20) / 40 + ( (c[1] - 20) % 40 <= 20 ? 0 : 1);
+		return new int[]{i, j};
+	}
+	
+	public int[] getTopLeftCase() {
+		int[] coord = getCoordCase();
+		return new int[]{coord[0] * 40, coord[1] * 40};
+	}
+	
+	public int[] getCenterCase() {
+		int[] topLeft = getTopLeftCase();
+		return new int[]{topLeft[0] + 20, topLeft[1] + 20};
+	}
+	
+	public void centerOn(int[] pos) {
+		setXPos(pos[0] - width / 2);
+		setYPos(pos[1] - height / 2);
+	}
 }

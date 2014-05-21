@@ -57,7 +57,7 @@ public class ImageAnimeDirection {
 	
 	public Image getImageAnime(Character character){
 		
-		if(character.getInvincible() == 0){
+		if(character.isInvincible()){
 			if(character.getTickInvincible()%2 == 0){
 				return liste.get(4*frames);
 			}
@@ -123,7 +123,7 @@ public class ImageAnimeDirection {
 	}
 	
 	public Image getImage(Boss boss){
-		if(boss.getInvincible() == 0){
+		if(boss.isInvincible()){
 			if(boss.getTickInvincible() % 2 == 0){
 				return liste.get(frames);
 			}

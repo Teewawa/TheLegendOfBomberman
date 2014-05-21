@@ -9,12 +9,12 @@ public class Arrow extends Item {
 	private int y;
 	private Link player;
 	
-	public Arrow(int xPos, int yPos,String name, Direction direction, Link player){
+	public Arrow(int xPos, int yPos, String name, Direction direction, Link player){
 		super(xPos,yPos,name);
-		this.x = xPos;
-		this.y = yPos;
 		this.direction = direction;
 		this.player = player;
+		width = direction.verticale() ? 20 : 30;
+		height = direction.verticale() ? 30 : 20;
 	}
 	
 	public Link getPlayer(){

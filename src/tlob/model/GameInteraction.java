@@ -1,6 +1,7 @@
 package tlob.model;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import tlob.view.Sound;
 
@@ -14,7 +15,7 @@ public class GameInteraction {
 	private List<Arrow> arrow;
 	private List<FireBall> fireBall;
 	private List<Thunder> thunder;
-	private Map map;
+	private ModelMap map;
 	private boolean changeLevel = false;
 	private boolean chestOpen = false;
 	
@@ -179,7 +180,7 @@ public class GameInteraction {
 				if( doesTouch(link.nextPos(dir), link, d) ){
 					if(d instanceof Door && ((Door)d).getOpen() == true){
 						
-					} else if(d instanceof Treasure && ((Treasure) d).isBonusTaken() == true){
+					} else if(d instanceof Treasure) {
 						
 					} else {
 						link.unsetDir(dir);
@@ -192,7 +193,7 @@ public class GameInteraction {
 			Direction a = touch(link, m);
 			if(a != null)
 			{
-				if(link.getDirSet(a) != 0 && link.getInvincible() == 1){
+				if(link.isDirSet(a) && link.isInvincible() == false){
 					for(int j = 0; j < 3; j++)
 					{
 						link.setPos( link.nextPos(a, 5) );
@@ -216,15 +217,14 @@ public class GameInteraction {
 				}
 			}
 		}
-		for(int i = 0; i < bonus.size(); i++) {
-			Bonus b  = bonus.get(i);
+		for(Iterator<Bonus> it = bonus.iterator(); it.hasNext(); ){
+			Bonus b = it.next();
 			if(touch(link, b) != null){
 				b.activation(link);
 				
 				new Sound(b.getName() == "res/Rubis" ? "rupee" : "bonus").play();
 				
-				bonus.remove(i);
-				i--;
+				it.remove();
 			}
 		}
 	}
@@ -314,7 +314,7 @@ public class GameInteraction {
 					{
 						if(doesTouch(liste[dir.ordinal()][j], bombDef, d))
 						{
-							if(d instanceof Jar && bombDef.getDirSet(dir) == 1 && bombDef.getPlayer() != null)
+							if(d instanceof Jar && bombDef.isDirSet(dir) && bombDef.getPlayer() != null)
 							{
 								Jar jar = (Jar)d;
 								bombDef.getListe(dir).add( liste[dir.ordinal()][j] );
@@ -336,7 +336,7 @@ public class GameInteraction {
 				}
 			}
 			for(Direction dir : Direction.values())
-				if(bombDef.getDirSet(dir) == 1)
+				if(bombDef.isDirSet(dir))
 					bombDef.getListe(dir).add(liste[dir.ordinal()][j]);
 		}
 		System.out.println("");
@@ -478,7 +478,7 @@ public class GameInteraction {
 			if(monster.getAction() == true){
 				monster.tick(5);
 				if(monster.getTime() == 8){
-					ranged.fireArrow(arrow);
+					arrow.add( ranged.fireArrow() );
 					monster.setAction(false);
 					monster.setTime(0);
 					monster.setCooldown(0);
@@ -559,7 +559,7 @@ public class GameInteraction {
 					&& Math.abs(monster.getYPos() - link.get(0).getYPos()) < 80 
 					&& under.getUnderground() == true){
 				under.setUnderground(false);
-				monster.setInv(1);
+				monster.setInvicible(false);
 				monster.setActualFrame(1);
 				monster.setSpeed(2);
 				monster.setName("res/Monster/underground");
@@ -569,7 +569,7 @@ public class GameInteraction {
 					&& Math.abs(monster.getYPos() - link.get(0).getYPos()) > 140
 					&& monster.getXPos()%40 == 0 && monster.getYPos()%40 == 0){
 				under.setUnderground(true);
-				monster.setInvicible();
+				monster.setInvicible(true);
 				monster.setActualFrame(1);
 				monster.setSpeed(4);
 				monster.setName("res/Monster/hidden");

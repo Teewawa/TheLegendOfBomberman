@@ -1,6 +1,9 @@
 package tlob.model;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 public abstract class Character implements Tick, Hitbox {
 
@@ -14,7 +17,7 @@ public abstract class Character implements Tick, Hitbox {
 	protected Direction direction;
 	private int actualFrame = 1;
 	private String name;
-	private int invincible = 1; // 1 = OFF, 0 = ON
+	private boolean invincible = false;
 	private int tickInvicible = 1;
 	private int frozen = 1;
 	private int tickFrozen = 1;
@@ -22,10 +25,7 @@ public abstract class Character implements Tick, Hitbox {
 	private int myTick = 0;
 	private int tick = 0;
 	
-	private int dirSetHaut = 1;
-	private int dirSetBas = 1;
-	private int dirSetGauche = 1;
-	private int dirSetDroite = 1;
+	private Set<Direction> dirs = new HashSet<Direction>();
 	
 	public Character(int lifePoint, int xPos, int yPos, int speed, Direction direction, String name){
 		this.lifePoint =  lifePoint;
@@ -36,6 +36,7 @@ public abstract class Character implements Tick, Hitbox {
 		this.name = name;
 		width = 36;
 		height = 36;
+		setAllDir();
 	}
 	
 	public int getActualFrame(){
@@ -48,26 +49,27 @@ public abstract class Character implements Tick, Hitbox {
 	}
 	
 	public void getDamage(int damage){
-		lifePoint = lifePoint - invincible*damage;
-		invincible = 0;
+		if(! invincible)
+			lifePoint = Math.max(0, lifePoint - damage);
+		invincible = true;
 	}
 	
-	public int getInvincible(){
+	public boolean isInvincible(){
 		return this.invincible;
 	}
 	
 	public void setInvicible(){
-		this.invincible = 0;
+		this.invincible = true;
 	}
 	
-	public void setInv(int n){
-		this.invincible = n;
+	public void setInvicible(boolean v){
+		this.invincible = v;
 	}
 	
 	public void tickInvincible(){
 		tickInvicible++;
 		if(tickInvicible == 40){
-			this.invincible = 1;
+			this.invincible = false;
 			this.tickInvicible = 1;
 		}
 	}
@@ -78,7 +80,7 @@ public abstract class Character implements Tick, Hitbox {
 
 	public void tickFrozen() {
 		tickFrozen++;
-		if(tickFrozen==50) {
+		if(tickFrozen == 50) {
 			this.frozen=1;
 			this.tickFrozen=1;
 		}
@@ -214,42 +216,41 @@ public abstract class Character implements Tick, Hitbox {
 	}
 	
 	
-	public int getDirSet(Direction d){
-		if(d == Direction.GAUCHE)
-			return dirSetGauche;
-		else if(d == Direction.DROITE)
-			return dirSetDroite;
-		else if(d == Direction.HAUT)
-			return dirSetHaut;
-		else
-			return dirSetBas;
+	public boolean isDirSet(Direction d){
+		return dirs.contains(d);
 	}
 	
 	public void unsetDir(Direction d) {
-		if(d == null)
-			return;
-		if(d == Direction.GAUCHE)
-			dirSetGauche = 0;
-		else if(d == Direction.DROITE)
-			dirSetDroite = 0;
-		else if(d == Direction.HAUT)
-			dirSetHaut = 0;
-		else if(d == Direction.BAS)
-			dirSetBas = 0;
+		dirs.remove(d);
 	}
 	
 	public void setAllDir() {
-		dirSetDroite = 1;
-		dirSetGauche = 1;
-		dirSetBas = 1;
-		dirSetHaut = 1;
+		dirs.addAll( Arrays.asList(Direction.values()) );
 	}
 	
 	public void unsetAllDir() {
-		dirSetDroite = 0;
-		dirSetGauche = 0;
-		dirSetBas = 0;
-		dirSetHaut = 0;
+		dirs.clear();
+	}
+	
+	public int[] getCenter() {
+		return new int[]{xPos + width / 2, yPos + height / 2};
+	}
+	
+	public int[] getCoordCase() {
+		int[] c = getCenter();
+		int i = (c[0] - 20) / 40 + ( (c[0] - 20) % 40 <= 20 ? 0 : 1);
+		int j = (c[1] - 20) / 40 + ( (c[1] - 20) % 40 <= 20 ? 0 : 1);
+		return new int[]{i, j};
+	}
+	
+	public int[] getTopLeftCase() {
+		int[] coord = getCoordCase();
+		return new int[]{coord[0] * 40, coord[1] * 40};
+	}
+	
+	public int[] getCenterCase() {
+		int[] topLeft = getTopLeftCase();
+		return new int[]{topLeft[0] + 20, topLeft[1] + 20};
 	}
 
 }

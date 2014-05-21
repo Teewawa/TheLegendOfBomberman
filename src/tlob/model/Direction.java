@@ -25,6 +25,14 @@ public enum Direction {
 		}
 	}
 	
+	public boolean horizontale() {
+		return dy == 0;
+	}
+	
+	public boolean verticale() {
+		return dx == 0;
+	}
+	
 	public Direction inverse(boolean valeur) {
 		return valeur ? inverse() : this;
 	}

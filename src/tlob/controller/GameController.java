@@ -5,6 +5,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import tlob.model.*;
@@ -81,7 +82,7 @@ public class GameController implements KeyListener{
 	private Level level;
 	private boolean pressedOnce = true; // premiere foi qu on appuie
 	private Sound sound = new Sound();
-	private Map map;
+	private ModelMap map;
 	
 	public GameController(Level level){
 		this.level = level;
@@ -145,7 +146,7 @@ public class GameController implements KeyListener{
 			status = Status.values()[statusMenu];
 			deleteCopy();
 			if(status == Status.MULTI){
-				Map map = new Map(16, 16, "0", "0", "0");
+				ModelMap map = new ModelMap(16, 16, "0", "0", "0");
 				map.setEnvironment("/Forest");
 				level.createLevel(map);
 				createGameController(level);
@@ -157,7 +158,7 @@ public class GameController implements KeyListener{
 
 			}
 			else{
-				Map map = new Map(16, 16, "1", "3", "1");
+				ModelMap map = new ModelMap(16, 16, "1", "3", "1");
 				level.createLevel(map);
 				createGameController(level);
 				link.add(new Link(3, 7 * 40, 13 * 40, 3, Direction.HAUT, baseNames[0]));
@@ -195,7 +196,7 @@ public class GameController implements KeyListener{
 				break;
 			}
 			
-			if(l.getInvincible() == 0)
+			if(l.isInvincible())
 				l.tickInvincible();
 		
 			interaction.linkInteraction(link.get(i));
@@ -221,7 +222,9 @@ public class GameController implements KeyListener{
 			}
 		
 			if(bouton.fireArrow){
-				l.fireArrow(arrow);
+				Arrow a = l.fireArrow();
+				if(a != null)
+					arrow.add(a);
 				if(l.getActualFrame() == 6){
 					bouton.fireArrow = false;
 					l.setActualFrame(1);
@@ -265,50 +268,45 @@ public class GameController implements KeyListener{
 			interaction.linkInteraction(l);
 		}
 
-		for(int p = 0; p < arrow.size(); p++){
-			Arrow arr = arrow.get(p);
+		for(Iterator<Arrow> it = arrow.iterator(); it.hasNext(); ){
+			Arrow arr = it.next();
 			int a = interaction.arrowInteraction(arr);
 			if(a != 0){
 				if(a == 2){
 					arr.tick(5);
 					//arrow.get(p).setActualFrame(1);
 					if(arr.getTime() == 3){
-						arrow.remove(p);
-						p--;
+						it.remove();
 					}
 				}
 				else{
-					arrow.remove(p);
-					p--;
+					it.remove();
 				}
 			}
 		}
 
-		for(int p = 0; p < bomb.size(); p++){
-			Bomb b = bomb.get(p);
+		for(Iterator<Bomb> it = bomb.iterator(); it.hasNext(); ){
+			Bomb b = it.next();
 			
 			interaction.bombInteraction(b);
 			b.tick();
 			if(b.getTime() == 15){ //changer dans deflagration si changement de temps
 				bombDeflagration.add( new BombDeflagration(b.getXPos(), b.getYPos(), "res/Deflagration", b.getPlayer()) );
-				bomb.remove(p);
-				p--;
+				it.remove();
 				new Sound("bomb").play();
 			}
 		}
 		
-		for(int p = 0; p < bombDeflagration.size(); p++){
-			BombDeflagration def = bombDeflagration.get(p);
+		for(Iterator<BombDeflagration> it = bombDeflagration.iterator(); it.hasNext(); ){
+			BombDeflagration def = it.next();
 			
 			def.tick(2);
 			if(def.getPortee() < def.getPlayer().getRangeBomb() * 4 + 2){
 				interaction.deflagrationAppear(def, def.getPlayer().getRangeBomb());
 				interaction.defInteraction(def);
 			}
-			else{
-				bombDeflagration.remove(p);
-				p--;
-			}
+			else
+				it.remove();
 		}
 	}
 	
@@ -423,9 +421,8 @@ public class GameController implements KeyListener{
 			
 			for(int i = 0; i < 1; i++){
 				
-				if(l.getInvincible() == 0){
+				if(l.isInvincible()) 
 					l.tickInvincible();
-				}
 			
 				interaction.linkInteraction(l);
 
@@ -449,7 +446,9 @@ public class GameController implements KeyListener{
 				}
 				
 				if(bouton.fireArrow){
-					l.fireArrow(arrow);
+					Arrow a = l.fireArrow();
+					if(a != null)
+						arrow.add(a);
 					if(l.getActualFrame() == 6){
 						bouton.fireArrow = false;
 						l.setActualFrame(1);
@@ -492,9 +491,9 @@ public class GameController implements KeyListener{
 				}
 			}
 		
-			for(int p = 0; p < monster.size(); p++){
-				Monster m = monster.get(p);
-				if(m.getInvincible() == 0 || m instanceof MovingTrap){
+			for(Iterator<Monster> it = monster.iterator(); it.hasNext(); ){
+				Monster m = it.next();
+				if(m.isInvincible() || m instanceof MovingTrap){
 					if(m instanceof Underground && ((Underground) m).getUnderground() == true){
 						
 					}
@@ -504,44 +503,40 @@ public class GameController implements KeyListener{
 				}
 				interaction.monsterInteraction(m);
 				if(m.getLifePoint() <= 0){
-					monster.remove(p);
-					p--;
+					it.remove();
 				}
 			}
 
-			for(int p = 0; p < arrow.size(); p++){
-				Arrow arr = arrow.get(p);
+			for(Iterator<Arrow> it = arrow.iterator(); it.hasNext(); ){
+				Arrow arr = it.next();
 				int a = interaction.arrowInteraction(arr);
 				if(a != 0){
 					if(a == 2){
 						arr.tick(5);
 						//arrow.get(p).setActualFrame(1);
 						if(arr.getTime() == 3){
-							arrow.remove(p);
-							p--;
+							it.remove();
 						}
 					}
 					else{
-						arrow.remove(p);
-						p--;
+						it.remove();
 					}
 				}
 			}
 	
-			for(int p = 0; p < bomb.size(); p++){
-				Bomb b = bomb.get(p);
+			for(Iterator<Bomb> it = bomb.iterator(); it.hasNext(); ){
+				Bomb b = it.next();
 				interaction.bombInteraction(b);
 				b.tick();
 				if(b.getTime() == 15){ //changer dans deflagration si changement de temps
 					bombDeflagration.add(new BombDeflagration(b.getXPos(), b.getYPos(), "res/Deflagration", b.getPlayer()));
-					bomb.remove(p);
-					p--;
+					it.remove();
 					new Sound("bomb").play("bomb");
 				}
 			}
 			
-			for(int p = 0; p < bombDeflagration.size(); p++){
-				BombDeflagration def = bombDeflagration.get(p);
+			for(Iterator<BombDeflagration> it = bombDeflagration.iterator(); it.hasNext(); ){
+				BombDeflagration def = it.next();
 				def.tick(2);
 				if(def.getPlayer() == null){
 					if(def.getPortee() < 2 * 4 + 2){
@@ -549,8 +544,7 @@ public class GameController implements KeyListener{
 						interaction.defInteraction(def);
 					}
 					else{
-						bombDeflagration.remove(p);
-						p--;
+						it.remove();
 					}
 				}
 				else{
@@ -559,28 +553,25 @@ public class GameController implements KeyListener{
 						interaction.defInteraction(def);
 					}
 					else{
-						bombDeflagration.remove(p);
-						p--;
+						it.remove();
 					}
 				}
 			}
 			
-			for(int p = 0; p < fireBall.size(); p++){
-				FireBall f = fireBall.get(p);
+			for(Iterator<FireBall> it = fireBall.iterator(); it.hasNext(); ){
+				FireBall f = it.next();
 				f.tick();
 				interaction.fireBallInteraction(f);
 				if(f.getList().size() < f.getAttributPos() - 1){
-					fireBall.remove(p);
-					p--;
+					it.remove();
 				}
 			}
 			
-			for(int p = 0; p < thunder.size(); p++){
-				Thunder t  = thunder.get(p);
+			for(Iterator<Thunder> it = thunder.iterator(); it.hasNext(); ){
+				Thunder t = it.next();
 				interaction.thunderInteraction(t);
 				if(t.getTickThunder() == 100){
-					thunder.remove(p);
-					p--;
+					it.remove();
 				}
 			}
 		}

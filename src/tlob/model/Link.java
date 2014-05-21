@@ -19,6 +19,9 @@ public class Link extends Character {
 	{
 		super(lifePoint, xPos, yPos, speed, direction, "res/" + baseName + "/" + baseName + "Run");
 		this.baseName = baseName;
+		
+		width = 35;
+		height = 35;
 	}
 	
 
@@ -92,39 +95,30 @@ public class Link extends Character {
 	public void move(Direction d)
 	{
 		direction = d;
-		setXPos(xPos + d.dx * getFrozen() * getDirSet(d) * speed);
-		setYPos(yPos + d.dy * getFrozen() * getDirSet(d) * speed);
+		if(isDirSet(d)) {
+			setXPos(xPos + d.dx * getFrozen() * speed);
+			setYPos(yPos + d.dy * getFrozen() * speed);
+		}
 		tick(6,5);
 	}
 	
 	public void setBomb(List<Bomb> liste)
 	{
-		int x,y;
 		int k = 1;
-		if(xPos % 40 <= 20){
-			x = xPos - xPos % 40;
-		}
-		else{
-			x = xPos + 40 - xPos % 40;
-		}
-		if(yPos%40 <= 20){
-			y = yPos - yPos % 40;
-		}
-		else{
-			y = yPos + 40 - yPos % 40;
-		}
+		int[] c = getCenterCase();
 		for(Bomb b : liste) {
-			if(x + 5 == b.getXPos() && y + 5 == b.getYPos()){
+			if(b.getCenter().equals(c)){
 				k = 0;
 			}
 		}
-		if (k == 1 && getInvincible() == 1){
-			liste.add( new Bomb(x+5, y+5, "res/Bomb", this)) ;
+		if (k == 1 && isInvincible() == false){
+			Bomb b = new Bomb(xPos, yPos, "res/Bomb", this);
+			b.centerOn(c);
+			liste.add(b);
 		}
 	}
 	
-	public void fireArrow(List<Arrow> liste){
-		
+	public Arrow fireArrow() {
 		if(numberArrow > 0){
 			if(getActualFrame() != 1 && frameArrow == 0){
 				setActualFrame(1);
@@ -136,15 +130,14 @@ public class Link extends Character {
 			tick(6,5);
 			
 			if(getActualFrame() == 6){
-				liste.add(new Arrow(xPos, yPos, "res/Arrow", direction, this));
 				frameArrow = 0;
 				numberArrow--;
+				Arrow a = new Arrow(xPos, yPos, "res/Arrow", direction, this);
+				a.centerOn( new int[]{getXPos() + getWidth() / 2, getYPos() + getHeight() / 2} );
+				return a;
 			}
 		}
-	}
-
-	public int[] nextPos() {
-		return nextPos(getDirection(), getSpeed());
+		return null;
 	}
 
 }
