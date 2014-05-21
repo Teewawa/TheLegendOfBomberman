@@ -7,7 +7,7 @@ public class Bomber extends Monster {
 	private int tick = 0;
 	private int bombFrame = 1;
 	
-	public Bomber (int lifePoint, int xPos, int yPos, int speed,int direction, String name)
+	public Bomber (int lifePoint, int xPos, int yPos, int speed, Direction direction, String name)
 	{
 		super(lifePoint, xPos, yPos,speed, direction, name);
 		setTime(40);

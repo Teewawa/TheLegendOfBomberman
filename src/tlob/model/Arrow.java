@@ -2,14 +2,14 @@ package tlob.model;
 
 public class Arrow extends Item implements Tick{
 	
-	private int direction;
+	private Direction direction;
 	private int t = 0;
 	private int mytick;
 	private int x;
 	private int y;
 	private int player;
 	
-	public Arrow(int xPos, int yPos,String name, int direction, int player){
+	public Arrow(int xPos, int yPos,String name, Direction direction, int player){
 		super(xPos,yPos,name);
 		this.x = xPos;
 		this.y = yPos;
@@ -29,12 +29,12 @@ public class Arrow extends Item implements Tick{
 		return this.y;
 	}
 	
-	public int getDirection()
+	public Direction getDirection()
 	{ 
 		return direction;
 	}
 	
-	public void setDirection (int direction)
+	public void setDirection(Direction direction)
 	{
 		this.direction = direction;
 	}
@@ -44,22 +44,11 @@ public class Arrow extends Item implements Tick{
 	}
 	
 	public void move(){
-		if(direction == 0){
-			setXPos(getXPos() - 10);
-			tick(3,5);
-		}
-		if(direction == 1){
-			setXPos(getXPos() + 10);
-			tick(3,5);
-		}
-		if(direction == 2){
-			setYPos(getYPos() - 10);
-			tick(3,5);
-		}
-		if(direction == 3){
-			setYPos(getYPos() + 10);
-			tick(3,5);
-		}
+		if(direction.dx != 0)
+			setXPos(getXPos() + 10 * direction.dx);
+		if(direction.dy != 0)
+			setYPos(getXPos() + 10 * direction.dx);
+		tick(3,5);
 	}
 
 	@Override

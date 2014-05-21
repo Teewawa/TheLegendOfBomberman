@@ -16,6 +16,22 @@ public class GameController implements KeyListener{
 		PAUSE, ESCAPE
 	}
 	
+	static enum StoreItem {
+		FLECHE(10, 99),
+		BOMB_RANGE(30, 9),
+		BOMB(30, 9),
+		SPEED(50, 6),
+		HEART(100, 5);
+		
+		public int price;
+		public int max;
+		
+		private StoreItem(int price, int max) {
+			this.price = price;
+			this.max = max;
+		}
+	}
+	
 	private boolean rightPressed = false;
 	private boolean leftPressed = false;
 	private boolean downPressed = false;
@@ -72,7 +88,7 @@ public class GameController implements KeyListener{
 		this.menu = level.getMenu();
 		this.gameOver = level.getGameOver();
 		this.store = level.getStore();
-		this.sound.playSound("menu");
+		this.sound.play("menu");
 	}
 	
 	public void createGameController(Level level){
@@ -112,35 +128,34 @@ public class GameController implements KeyListener{
 	}
 	
 	public void updateMenu() {
-		Sound soundChange = new Sound();
-		Sound soundChoose = new Sound();
+		Sound soundChange = new Sound("menuchange");
+		Sound soundChoose = new Sound("menuchoose");
 		
-		if(sound.isFinished(sound.getAudioStream()))
-		{
-			sound.playSound("menu");
-		}
+		if(sound.isFinished())
+			sound.play("menu");
+		
 		if (downPressedMenu && pressedOnce && statusMenu > 1 ){
-			for (int i = 0; i<menu.size();i++){
-				if(menu.get(i).getStatus() == statusMenu)
-					menu.get(i).setName("res/1player");
-				else if(menu.get(i).getStatus() == statusMenu - 1)
-					menu.get(i).setName("res/2playersbombs");
+			for (Menu m : menu) {
+				if(m.getStatus() == statusMenu)
+					m.setName("res/1player");
+				else if(m.getStatus() == statusMenu - 1)
+					m.setName("res/2playersbombs");
 			}
 			statusMenu -= 1;
 			pressedOnce = false;
-			soundChange.playSound("menuchange");
+			soundChange.play();
 		}
 		else if (upPressedMenu && pressedOnce && statusMenu < 2){
-			for (int i = 0; i<menu.size();i++){
-				if(menu.get(i).getStatus() == statusMenu)
-					menu.get(i).setName("res/2players");
-				else if(menu.get(i).getStatus() == statusMenu + 1)
-					menu.get(i).setName("res/1playerbombs");
+			for (Menu m : menu) {
+				if(m.getStatus() == statusMenu)
+					m.setName("res/2players");
+				else if(m.getStatus() == statusMenu + 1)
+					m.setName("res/1playerbombs");
 
 			}
 			statusMenu += 1;
 			pressedOnce = false;
-			soundChange.playSound("menuchange");
+			soundChange.play();
 
 		}
 		else if (!downPressedMenu && !upPressedMenu && !enterPressed){
@@ -151,85 +166,80 @@ public class GameController implements KeyListener{
 			status = Status.values()[statusMenu];
 			deleteCopy();
 			if(status == Status.MULTI){
-				Map map = new Map(16,16,"0","0","0");
+				Map map = new Map(16, 16, "0", "0", "0");
 				map.setEnvironment("/Forest");
 				level.createLevel(map);
 				createGameController(level);
-				link.add(new Link(3,1*40,1*40,2,1,"res/Link/LinkRun",0));
-				link.add(new Link(3,13*40,13*40,2,0,"res/RedLink/RedLinkRun",1));
-				sound.soundEnd(sound.getAudioStream());
-				sound.playSound("forest1");
-				soundChoose.playSound("menuchoose");
+				link.add( new Link(3, 1*40, 1*40, 2, Direction.DROITE, "res/Link/LinkRun", 0) );
+				link.add( new Link(3, 13*40, 13*40, 2, Direction.GAUCHE, "res/RedLink/RedLinkRun", 1) );
+				sound.soundEnd();
+				sound.play("forest1");
+				soundChoose.play();
 
 			}
 			else{
-				Map map = new Map(16,16,"1","3","1");
+				Map map = new Map(16, 16, "1", "3", "1");
 				level.createLevel(map);
 				createGameController(level);
-				link.add(new Link(3,7*40,13*40,3,2,"res/Link/LinkRun",0));
+				link.add(new Link(3, 7 * 40, 13 * 40, 3, Direction.HAUT, "res/Link/LinkRun",0));
 
-				sound.soundEnd(sound.getAudioStream());
-				sound.playSound("desert1");
-				soundChoose.playSound("menuchoose");
+				sound.soundEnd();
+				sound.play("desert1");
+				soundChoose.play();
 				attributW = false;
 			}
 			level.setStatus(status);
 			enterPressed = false;
-			statusMenu=1;
-
+			statusMenu = 1;
 		}
 	}
 	
 	public void updateMulti() {
-		if(sound.isFinished(sound.getAudioStream()))
+		if(sound.isFinished())
 		{
-			int random = r.nextInt(2);
-			if (random == 0){
-				sound.playSound("forest1");
-			}
-			else if(random == 1){
-				sound.playSound("forest2");
-			}
+			if (r.nextInt(2) == 0)
+				sound.play("forest1");
+			else
+				sound.play("forest2");
 		}
 		
-
-		
-		for(int i = 0; i < link.size(); i++){
+		for(int i = 0; i < link.size(); i++) {
+			Link l = link.get(i);
 			
-			if(link.get(i).getLifePoint() <= 0){
+			if(l.getLifePoint() <= 0){
 				status = Status.MULTI_WIN;
 				level.setStatus(status);
-				sound.soundEnd(sound.getAudioStream());
-				sound.playSound("multigameover");
+				sound.soundEnd();
+				sound.play("multigameover");
 				break;
 			}
 			
 			//link.get(i).setSpeed(1);
 			
-			if(link.get(i).getInvincible() == 0){
-				link.get(i).tickInvincible();
+			if(l.getInvincible() == 0){
+				l.tickInvincible();
 			}
 		
 			interaction.linkInteraction(link.get(i));
 
 			if(rightPressed){
 				link.get(0).setName("res/Link/LinkRun");
-				link.get(0).moveRight();
+				link.get(0).move(Direction.DROITE);
 			
 			}
 			if(leftPressed){
 				link.get(0).setName("res/Link/LinkRun");
-				link.get(0).moveLeft();
+				link.get(0).move(Direction.GAUCHE);
 			}
 		
 			if(downPressed){
 				link.get(0).setName("res/Link/LinkRun");
-				link.get(0).moveDown();
+				link.get(0).move(Direction.BAS);
 			}
 		
 			if(upPressed){
 				link.get(0).setName("res/Link/LinkRun");
-				link.get(0).moveUp();
+				link.get(0).move(Direction.HAUT);
 			}
 		
 			if(fireArrow){
@@ -252,43 +262,42 @@ public class GameController implements KeyListener{
 				setBomb = false;
 			}
 			if(useStaff==true && link.get(0).getStaff()!=-1) {
-				if(link.get(0).getStaff()==0) {
+				if(link.get(0).getStaff() == 0) {
 					link.get(1).getDamage(1);			
-					useStaff=false; 
+					useStaff = false; 
 					link.get(0).setStaff(-1); 
 				}
-				else if(link.get(0).getStaff()==1) {
-						link.get(1).setFrozen();
-						link.get(1).tickFrozen();	
-						if(link.get(1).getFrozen()==1) {
-							useStaff=false; 
-							link.get(0).setStaff(-1); 
-						}
-				
+				else if(link.get(0).getStaff() == 1) {
+					link.get(1).setFrozen();
+					link.get(1).tickFrozen();	
+					if(link.get(1).getFrozen() == 1) {
+						useStaff=false; 
+						link.get(0).setStaff(-1); 
+					}
+				}
 			}
-		}
 			else {
 				useStaff = false;
 			}
 		
 			if(rightPressed2){
 				link.get(1).setName("res/RedLink/RedLinkRun");
-				link.get(1).moveRight();
+				link.get(1).move(Direction.DROITE);
 			
 			}
 			if(leftPressed2){
 				link.get(1).setName("res/RedLink/RedLinkRun");
-				link.get(1).moveLeft();
+				link.get(1).move(Direction.GAUCHE);
 			}
 		
 			if(downPressed2){
 				link.get(1).setName("res/RedLink/RedLinkRun");
-				link.get(1).moveDown();
+				link.get(1).move(Direction.BAS);
 			}
 		
 			if(upPressed2){
 				link.get(1).setName("res/RedLink/RedLinkRun");
-				link.get(1).moveUp();
+				link.get(1).move(Direction.HAUT);
 			}
 		
 			if(fireArrow2){
@@ -318,12 +327,12 @@ public class GameController implements KeyListener{
 					link.get(1).setStaff(-1); 
 				}
 				else if(link.get(1).getStaff()==1) {
-						link.get(0).setFrozen();
-						link.get(0).tickFrozen();
-						if(link.get(0).getFrozen()==1) {
-							useStaff2=false; 
-							link.get(1).setStaff(-1); 
-						}
+					link.get(0).setFrozen();
+					link.get(0).tickFrozen();
+					if(link.get(0).getFrozen()==1) {
+						useStaff2=false; 
+						link.get(1).setStaff(-1); 
+					}
 				}
 			}
 			
@@ -332,50 +341,45 @@ public class GameController implements KeyListener{
 			}
 			
 			interaction.linkInteraction(link.get(i));
-	}
+		}
 
-		if(arrow.size()>0){
-			for(int p = 0; p < arrow.size(); p++){
-				int a = interaction.arrowInteraction(arrow.get(p));
-				if(a != 0){
-					if(a == 2){
-						arrow.get(p).tick(5);
-						//arrow.get(p).setActualFrame(1);
-						if(arrow.get(p).getTime() == 3){
-							arrow.remove(p);
-						}
-					}
-					else{
+		for(int p = 0; p < arrow.size(); p++){
+			int a = interaction.arrowInteraction(arrow.get(p));
+			if(a != 0){
+				if(a == 2){
+					arrow.get(p).tick(5);
+					//arrow.get(p).setActualFrame(1);
+					if(arrow.get(p).getTime() == 3){
 						arrow.remove(p);
 					}
 				}
+				else{
+					arrow.remove(p);
+				}
 			}
 		}
 
-		if(bomb.size()>0){
-			for(int p = 0; p < bomb.size(); p++){
-				interaction.bombInteraction(bomb.get(p));
-				bomb.get(p).tick();
-				if(bomb.get(p).getTime() == 15){ //changer dans deflagration si changement de temps
-					bombDeflagration.add(new BombDeflagration(bomb.get(p).getXPos(),bomb.get(p).getYPos(),
-							"res/Deflagration",bomb.get(p).getPlayer()));
-					bomb.remove(p);
-					Sound soundBomb = new Sound();
-					soundBomb.playSound("bomb");
-				}
+		for(int p = 0; p < bomb.size(); p++){
+			interaction.bombInteraction(bomb.get(p));
+			bomb.get(p).tick();
+			if(bomb.get(p).getTime() == 15){ //changer dans deflagration si changement de temps
+				bombDeflagration.add(new BombDeflagration(bomb.get(p).getXPos(),bomb.get(p).getYPos(),
+						"res/Deflagration",bomb.get(p).getPlayer()));
+				bomb.remove(p);
+				Sound soundBomb = new Sound();
+				soundBomb.play("bomb");
 			}
 		}
-		if(bombDeflagration.size()>0){
-			for(int p = 0; p < bombDeflagration.size(); p++){
-				bombDeflagration.get(p).tick(2);
-				if(bombDeflagration.get(p).getPortee() < link.get(bombDeflagration.get(p).getPlayer()).getRangeBomb()*4+2){
-					interaction.deflagrationAppear(bombDeflagration.get(p),
-							link.get(bombDeflagration.get(p).getPlayer()).getRangeBomb());
-					interaction.defInteraction(bombDeflagration.get(p));
-				}
-				else{
-					bombDeflagration.remove(p);
-				}
+		
+		for(int p = 0; p < bombDeflagration.size(); p++){
+			bombDeflagration.get(p).tick(2);
+			if(bombDeflagration.get(p).getPortee() < link.get(bombDeflagration.get(p).getPlayer()).getRangeBomb()*4+2){
+				interaction.deflagrationAppear(bombDeflagration.get(p),
+						link.get(bombDeflagration.get(p).getPlayer()).getRangeBomb());
+				interaction.defInteraction(bombDeflagration.get(p));
+			}
+			else{
+				bombDeflagration.remove(p);
 			}
 		}
 	}
@@ -399,14 +403,14 @@ public class GameController implements KeyListener{
 			level.setStatus(status);
 			enterPressed = false;
 			fireArrow = false;
-			sound.soundEnd(sound.getAudioStream());
-			sound.playSound("gameOver");
+			sound.soundEnd();
+			sound.play("gameOver");
 			statusMenu = 2;
 		}
 		
 		if(interaction.getChestOpen() == true){
 			interaction.setChestOpen(false);
-			soundChange.playSound("treasure");
+			soundChange.play("treasure");
 		}
 		
 		for (int i =0;i<level.getDecor().size();i++){
@@ -435,15 +439,15 @@ public class GameController implements KeyListener{
 			if(monster.get(t).getClass() == Boss.class && monster.get(t).getLifePoint() <= 0){
 				status = Status.MULTI_WIN;
 				level.setStatus(status);
-				sound.soundEnd(sound.getAudioStream());
-				sound.playSound("endgame");
+				sound.soundEnd();
+				sound.play("endgame");
 			}
 		}
 		
 		for(int t = 0; t < monster.size();t++){
 			if(monster.get(t).getClass() == Boss.class && attributW == false){
-				sound.soundEnd(sound.getAudioStream());
-				sound.playSound("Boss");
+				sound.soundEnd();
+				sound.play("Boss");
 				attributW = true;
 			}
 		}
@@ -460,19 +464,19 @@ public class GameController implements KeyListener{
 		
 		if(interaction.getChangeLevel() == true)
 		{
-			sound.soundEnd(sound.getAudioStream());
+			sound.soundEnd();
 			statusMenu = 1;
 			status = Status.STORE;
 			level.setStatus(status);
 			interaction.setChangeLevel(false);
-			sound.playSound("shop");
+			sound.play("shop");
 		}
 		else{
-			if(sound.isFinished(sound.getAudioStream()))
+			if(sound.isFinished())
 			{	
 				for(int i = 0;i<monster.size();i++){
 					if(monster.get(i).getClass() == Boss.class){
-						sound.playSound("Boss");
+						sound.play("Boss");
 						break;
 					}
 				}
@@ -480,28 +484,28 @@ public class GameController implements KeyListener{
 				 if (map.getEnvironment() == "/Desert"){
 					int random = r.nextInt(2);
 					if (random == 0){
-						sound.playSound("desert");
+						sound.play("desert");
 					}
 					else if(random == 1){
-						sound.playSound("desert1");
+						sound.play("desert1");
 					}
 				}
 				else if (map.getEnvironment() == "/Forest"){
 					int random = r.nextInt(2);
 					if (random == 0){
-						sound.playSound("forest1");
+						sound.play("forest1");
 					}
 					else if(random == 1){
-						sound.playSound("forest2");
+						sound.play("forest2");
 				}
 				}
 				else if (map.getEnvironment().contentEquals("/Dungeon")){
 					int random = r.nextInt(2);
 					if (random == 0){
-						sound.playSound("dungeon");
+						sound.play("dungeon");
 					}
 						else if(random == 1){
-						sound.playSound("dungeon1");
+						sound.play("dungeon1");
 					}
 				}
 			}
@@ -517,22 +521,22 @@ public class GameController implements KeyListener{
 
 				if(rightPressed){
 					link.get(0).setName("res/Link/LinkRun");
-					link.get(0).moveRight();
+					link.get(0).move(Direction.DROITE);
 				
 				}
 				if(leftPressed){
 					link.get(0).setName("res/Link/LinkRun");
-					link.get(0).moveLeft();
+					link.get(0).move(Direction.GAUCHE);
 				}
 			
 				if(downPressed){
 					link.get(0).setName("res/Link/LinkRun");
-					link.get(0).moveDown();
+					link.get(0).move(Direction.BAS);
 				}
 			
 				if(upPressed){
 					link.get(0).setName("res/Link/LinkRun");
-					link.get(0).moveUp();
+					link.get(0).move(Direction.HAUT);
 				}
 				
 				if(fireArrow){
@@ -570,103 +574,93 @@ public class GameController implements KeyListener{
 								useStaff=false; 
 								link.get(0).setStaff(-1); 
 							}
+						}
 					}
 				}
-			}
 				else {
 					useStaff = false;
 				}
-		}
+			}
 		
 		
-			if(monster.size() > 0){
-				for(int i = 0; i < monster.size(); i++){
-					if(monster.get(i).getInvincible() == 0 && monster.get(i).getClass() != MovingTrap.class){
-						if((monster.get(i).getClass() == Underground.class && ((Underground) monster.get(i)).getUnderground() == true)){
-						}
-						else{
-							monster.get(i).tickInvincible();
-						}
+			for(int i = 0; i < monster.size(); i++){
+				if(monster.get(i).getInvincible() == 0 && monster.get(i).getClass() != MovingTrap.class){
+					if((monster.get(i).getClass() == Underground.class && ((Underground) monster.get(i)).getUnderground() == true)){
 					}
-					interaction.monsterInteraction(monster.get(i));
-					if(monster.get(i).getLifePoint() == 0){
-						monster.remove(i);
+					else{
+						monster.get(i).tickInvincible();
 					}
 				}
-			}	
+				interaction.monsterInteraction(monster.get(i));
+				if(monster.get(i).getLifePoint() == 0){
+					monster.remove(i);
+				}
+			}
 
-			if(arrow.size()>0){
-				for(int p = 0; p < arrow.size(); p++){
-					int a = interaction.arrowInteraction(arrow.get(p));
-					if(a != 0){
-						if(a == 2){
-							arrow.get(p).tick(5);
-							//arrow.get(p).setActualFrame(1);
-							if(arrow.get(p).getTime() == 3){
-								arrow.remove(p);
-							}
-						}
-						else{
+			for(int p = 0; p < arrow.size(); p++){
+				int a = interaction.arrowInteraction(arrow.get(p));
+				if(a != 0){
+					if(a == 2){
+						arrow.get(p).tick(5);
+						//arrow.get(p).setActualFrame(1);
+						if(arrow.get(p).getTime() == 3){
 							arrow.remove(p);
 						}
+					}
+					else{
+						arrow.remove(p);
 					}
 				}
 			}
 	
-			if(bomb.size()>0){
-				for(int p = 0; p < bomb.size(); p++){
-					interaction.bombInteraction(bomb.get(p));
-					bomb.get(p).tick();
-					if(bomb.get(p).getTime() == 15){ //changer dans deflagration si changement de temps
-						bombDeflagration.add(new BombDeflagration(bomb.get(p).getXPos(),
-								bomb.get(p).getYPos(),"res/Deflagration",bomb.get(p).getPlayer()));
-						bomb.remove(p);
-						Sound soundBomb = new Sound();
-						soundBomb.playSound("bomb");
-					}
+			for(int p = 0; p < bomb.size(); p++){
+				interaction.bombInteraction(bomb.get(p));
+				bomb.get(p).tick();
+				if(bomb.get(p).getTime() == 15){ //changer dans deflagration si changement de temps
+					bombDeflagration.add(new BombDeflagration(bomb.get(p).getXPos(),
+							bomb.get(p).getYPos(),"res/Deflagration",bomb.get(p).getPlayer()));
+					bomb.remove(p);
+					Sound soundBomb = new Sound();
+					soundBomb.play("bomb");
 				}
 			}
-			if(bombDeflagration.size()>0){
-				for(int p = 0; p < bombDeflagration.size(); p++){
-					bombDeflagration.get(p).tick(2);
-					if(bombDeflagration.get(p).getPlayer() == -1){
-						if(bombDeflagration.get(p).getPortee() < 2*4+2){
-							interaction.deflagrationAppear(bombDeflagration.get(p), 2);
-							interaction.defInteraction(bombDeflagration.get(p));
-						}
-						else{
-							bombDeflagration.remove(p);
-						}
+			
+			for(int p = 0; p < bombDeflagration.size(); p++){
+				bombDeflagration.get(p).tick(2);
+				if(bombDeflagration.get(p).getPlayer() == -1){
+					if(bombDeflagration.get(p).getPortee() < 2*4+2){
+						interaction.deflagrationAppear(bombDeflagration.get(p), 2);
+						interaction.defInteraction(bombDeflagration.get(p));
 					}
 					else{
-						if(bombDeflagration.get(p).getPortee() < link.get(bombDeflagration.get(p).getPlayer())
-								.getRangeBomb()*4+2){
-							interaction.deflagrationAppear(bombDeflagration.get(p), 
-									link.get(bombDeflagration.get(p).getPlayer()).getRangeBomb());
-							interaction.defInteraction(bombDeflagration.get(p));
-						}
-						else{
-							bombDeflagration.remove(p);
-						}
+						bombDeflagration.remove(p);
+					}
+				}
+				else{
+					if(bombDeflagration.get(p).getPortee() < link.get(bombDeflagration.get(p).getPlayer())
+							.getRangeBomb()*4+2){
+						interaction.deflagrationAppear(bombDeflagration.get(p), 
+								link.get(bombDeflagration.get(p).getPlayer()).getRangeBomb());
+						interaction.defInteraction(bombDeflagration.get(p));
+					}
+					else{
+						bombDeflagration.remove(p);
 					}
 				}
 			}
 			
-			if(fireBall.size()>0){
-				for(int p = 0; p < fireBall.size(); p++){
-					fireBall.get(p).tick();
-					interaction.fireBallInteraction(fireBall.get(p));
-						if(fireBall.get(p).getList().size() < fireBall.get(p).getPos()-1){
-							fireBall.remove(p);
-						}
-				}
-			}
-			if(thunder.size()>0){
-				for(int p = 0; p < thunder.size(); p++){
-					interaction.thunderInteraction(thunder.get(p));
-					if(thunder.get(p).getTickThunder() == 100){
-						thunder.remove(p);
+			for(int p = 0; p < fireBall.size(); p++){
+				fireBall.get(p).tick();
+				interaction.fireBallInteraction(fireBall.get(p));
+					if(fireBall.get(p).getList().size() < fireBall.get(p).getPos()-1){
+						fireBall.remove(p);
 					}
+			}
+			
+			for(int p = 0; p < thunder.size(); p++){
+				interaction.thunderInteraction(thunder.get(p));
+				if(thunder.get(p).getTickThunder() == 100){
+					thunder.remove(p);
 				}
 			}
 		}
@@ -685,7 +679,7 @@ public class GameController implements KeyListener{
 			}
 			statusMenu++;
 			pressedOnce = false;
-			soundChange.playSound("menuchange");
+			soundChange.play("menuchange");
 
 		}
 		else if (rightPressedMenu && pressedOnce && statusMenu > 1){
@@ -698,7 +692,7 @@ public class GameController implements KeyListener{
 			}
 			statusMenu--;
 			pressedOnce = false;
-			soundChange.playSound("menuchange");
+			soundChange.play("menuchange");
 
 
 		}
@@ -707,13 +701,13 @@ public class GameController implements KeyListener{
 		}
 		
 		else if (enterPressed && pressedOnce){ 
-			soundChoose.playSound("menuchoose");
+			soundChoose.play("menuchoose");
 			deleteCopy();
 			if (statusMenu == 2){
 				status = Status.MENU;
-				sound.soundEnd(sound.getAudioStream());
-				sound.soundEnd(sound.getAudioStream());
-				sound.playSound("menu");
+				sound.soundEnd();
+				sound.soundEnd();
+				sound.play("menu");
 				level.setStatus(status);
 			}
 			else if (statusMenu == 1){ // ferme lapplication
@@ -725,12 +719,12 @@ public class GameController implements KeyListener{
 	}
 	
 	public void updateStore() {
-		Sound soundChange = new Sound();
-		Sound soundChoose = new Sound();
+		Sound soundChange = new Sound("menuchange");
+		Sound soundChoose = new Sound("menuchoose");
 		
-		if(sound.isFinished(sound.getAudioStream()))
+		if(sound.isFinished())
 		{
-			sound.playSound("shop");
+			sound.play("shop");
 		}
 	
 		if (rightPressedMenu && pressedOnce && statusMenu < 6 ){
@@ -738,7 +732,7 @@ public class GameController implements KeyListener{
 			store.get(statusMenu+1).setName("res/store" + (statusMenu+1) + "choose");
 			statusMenu++;
 			pressedOnce = false;
-			soundChange.playSound("menuchange");
+			soundChange.play();
 		}
 		
 		else if (leftPressedMenu && pressedOnce && statusMenu > 1){
@@ -746,7 +740,7 @@ public class GameController implements KeyListener{
 			store.get(statusMenu-1).setName("res/store" + (statusMenu-1) + "choose");
 			statusMenu--;
 			pressedOnce = false;
-			soundChange.playSound("menuchange");
+			soundChange.play();
 		}
 		else if (!leftPressedMenu && !rightPressedMenu && !enterPressed){
 			pressedOnce = true;
@@ -754,90 +748,82 @@ public class GameController implements KeyListener{
 			
 		else if (enterPressed && pressedOnce){
 			
-			switch (statusMenu){
-			case(1): // fleche
-				if(link.get(0).getNumberCoin() - 10 >= 0 && link.get(0).getNumberArrow()<99){
-					link.get(0).setNumberCoin(link.get(0).getNumberCoin() - 10);
-					link.get(0).setNumberArrow(link.get(0).getNumberArrow() + 1);
-					soundChange.playSound("shopbuy");
-					soundChange.playSound("rupee");
-				}	
-				else
-					soundChange.playSound("shopcantbuy");
-				break;
-			
-			case(2): //bombrange
-				if(link.get(0).getNumberCoin() - 10 >= 0 && link.get(0).getRangeBomb()<9){
-					link.get(0).setNumberCoin(link.get(0).getNumberCoin() - 30);
-					link.get(0).setRangeBomb(link.get(0).getRangeBomb() + 1);
-					soundChange.playSound("shopbuy");
-					soundChange.playSound("rupee");
-					}	
-				else
-					soundChange.playSound("shopcantbuy");
-				break;
+			if(1 <= statusMenu && statusMenu <= 5) {
+				StoreItem item = StoreItem.values()[statusMenu-1];
+				Link l = link.get(0);
 				
-			case(3): // bomb
-				if(link.get(0).getNumberCoin() - 10 >= 0 && link.get(0).getNumberBomb()<9){
-					link.get(0).setNumberCoin(link.get(0).getNumberCoin() - 30);
-					link.get(0).setNumberBomb(link.get(0).getNumberBomb()+1);
-					soundChange.playSound("shopbuy");
-					soundChange.playSound("rupee");
-
-				}	
-				else
-					soundChange.playSound("shopcantbuy");
-					break;
-			
-			case(4)://speed
-				if(link.get(0).getNumberCoin() - 10 >= 0 && link.get(0).getSpeed()<6){
-					link.get(0).setNumberCoin(link.get(0).getNumberCoin() - 50);
-					link.get(0).setSpeed(link.get(0).getSpeed()+1);
-					soundChange.playSound("shopbuy");
-					soundChange.playSound("rupee");
-					}	
-				else
-					soundChange.playSound("shopcantbuy");
-					break;
-			
-			case(5)://heart
-				if(link.get(0).getNumberCoin() - 10 >= 0 && link.get(0).getMaxLife()<5){
-					link.get(0).setNumberCoin(link.get(0).getNumberCoin() - 100);
-					link.get(0).setMaxLife(link.get(0).getMaxLife() + 1);
-					link.get(0).setLifePoint(link.get(0).getMaxLife());							
-					soundChange.playSound("shopbuy");
-					soundChange.playSound("rupee");
-					}	
-				else
-					soundChange.playSound("shopcantbuy");
+				boolean bought = false;
+				
+				switch (statusMenu){
+				case(1): // fleche
+					if(l.getNumberCoin() - item.price >= 0 && l.getNumberArrow() < item.max){
+						l.setNumberCoin(l.getNumberCoin() - item.price);
+						l.setNumberArrow(l.getNumberArrow() + 1);
+						bought = true;
+					}
 					break;
 				
-			case(6):
-				soundChoose.playSound("menuchoose");
+				case(2): //bombrange
+					if(l.getNumberCoin() - item.price >= 0 && l.getRangeBomb() < item.max){
+						l.setNumberCoin(l.getNumberCoin() - item.price);
+						l.setRangeBomb(l.getRangeBomb() + 1);
+						bought = true;
+					}
+					break;
+					
+				case(3): // bomb
+					if(l.getNumberCoin() - item.price >= 0 && l.getNumberBomb() < item.max){
+						l.setNumberCoin(l.getNumberCoin() - item.price);
+						l.setNumberBomb(l.getNumberBomb() + 1);
+						bought = true;
+					}
+					break;
+				
+				case(4)://speed
+					if(l.getNumberCoin() - item.price >= 0 && l.getSpeed() < item.max){
+						l.setNumberCoin(l.getNumberCoin() - item.price);
+						l.setSpeed(l.getSpeed() + 1);
+						bought = true;
+					}
+					break;
+				
+				case(5)://heart
+					if(l.getNumberCoin() - item.price >= 0 && l.getMaxLife() < item.max){
+						l.setNumberCoin(l.getNumberCoin() - item.price);
+						l.setMaxLife(l.getMaxLife() + 1);
+						l.setLifePoint(l.getMaxLife());							
+						bought = true;
+					}
+					break;
+				}
+				
+				if(bought) {
+					soundChange.play("shopbuy");
+					soundChange.play("rupee");
+				} else {
+					soundChange.play("shopcantbuy");
+				}
+			}
+			else if(statusMenu == 6) {
+				soundChoose.play();
 				System.out.println(map.getLevel());
 				if (map.getLevel().contentEquals("2")){
-					sound.soundEnd(sound.getAudioStream());
-					sound.playSound("forest2");
+					sound.soundEnd();
+					sound.play("forest2");
 				}
 				else if(map.getLevel().contentEquals("3")){
-					sound.soundEnd(sound.getAudioStream());
-					sound.playSound("dungeon");
-					}
+					sound.soundEnd();
+					sound.play("dungeon");
+				}
 				status = Status.SOLO;
 				level.setStatus(status);
-				break;
 			}
-				
-				
-				
+			
 			enterPressed = false;
 		}
 	}
 	
 	public void updateGameOver2() {
-		Sound soundChange = new Sound();
-		Sound soundChoose = new Sound();
-		
 		if (pausePressed && pressedOnce){
 			status = Status.SOLO;
 			level.setStatus(status);
@@ -849,8 +835,8 @@ public class GameController implements KeyListener{
 		
 		else if(escapePressed && pressedOnce)
 		{
-			sound.soundEnd(sound.getAudioStream());
-			sound.playSound("menu");
+			sound.soundEnd();
+			sound.play("menu");
 			status = Status.MENU;
 			statusMenu = 2;
 			level.setStatus(status);
@@ -871,8 +857,8 @@ public class GameController implements KeyListener{
 			enterPressed = false;
 			menu.get(2).setName("res/2players");
 			menu.get(1).setName("res/1playerbombs");
-			sound.soundEnd(sound.getAudioStream());
-			sound.playSound("menu");
+			sound.soundEnd();
+			sound.play("menu");
 		}
 	}
 	

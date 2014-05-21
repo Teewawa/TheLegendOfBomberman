@@ -2,6 +2,8 @@ package tlob.model;
 
 import java.util.List;
 
+import java.util.Random;
+
 public class SpawnerMonster extends Decor {
 	
 	public SpawnerMonster(int xPos, int yPos, String name) {
@@ -22,21 +24,22 @@ public class SpawnerMonster extends Decor {
 			setCooldown(0);
 		}
 		if(getCooldown() == 40 && numberMonster < 5){
-			java.util.Random r=new java.util.Random( ) ; 
-			int random = r.nextInt(4);	
+			int random = new Random().nextInt(4);	
+			Monster m = null;
 			switch(random){
 			case 0:
-				monster.add(new Melee(2,this.xPos,this.yPos,1,3,"res/Monster/MeleeRun"));
-				monster.get(monster.size()-1).setSpawner(true);
+				m = new Melee(2, this.xPos, this.yPos, 1, Direction.BAS, "res/Monster/MeleeRun");
 				break;
 			case 1:
-				monster.add(new Ranged(1,this.xPos,this.yPos,1,3,"res/Monster/RangedRun"));
-				monster.get(monster.size()-1).setSpawner(true);
+				m = new Ranged(1, this.xPos, this.yPos, 1, Direction.BAS, "res/Monster/RangedRun");
 				break;
 			case 3:
-				monster.add(new Bomber(2,this.xPos,this.yPos,1,3,"res/Monster/BomberRun"));
-				monster.get(monster.size()-1).setSpawner(true);
+				m = new Bomber(2, this.xPos, this.yPos, 1, Direction.BAS, "res/Monster/BomberRun");
 				break;
+			}
+			if(m != null) {
+				m.setSpawner(true);
+				monster.add(m);
 			}
 			setCooldown(0);
 		}

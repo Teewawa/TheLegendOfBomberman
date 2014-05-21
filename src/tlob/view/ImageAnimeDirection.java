@@ -10,10 +10,6 @@ import tlob.model.Character;
 
 public class ImageAnimeDirection {
 	private List<Image> liste;
-	public final static int GAUCHE = 0;
-	public final static int DROITE = 1;
-	public final static int HAUT = 2;
-	public final static int BAS = 3;
 	String nomBase;
 	private int frames;
 	private Image image;
@@ -73,13 +69,13 @@ public class ImageAnimeDirection {
 		
 		if(character.getClass() == Bomber.class){
 			if(((Bomber) character).getAction() == true){
-				if(character.getDirection() == GAUCHE){
+				if(character.getDirection() == Direction.GAUCHE){
 					return liste.get(((Bomber) character).getBombFrame() -1);
 				}
-				else if(character.getDirection() == DROITE){
+				else if(character.getDirection() == Direction.DROITE){
 					return liste.get(((Bomber) character).getBombFrame() + frames-1);
 				}
-				else if(character.getDirection() == HAUT){
+				else if(character.getDirection() == Direction.HAUT){
 					return liste.get(((Bomber) character).getBombFrame() + 2*frames-1);
 				}
 				else{
@@ -88,13 +84,13 @@ public class ImageAnimeDirection {
 			}
 		}
 		
-		if(character.getDirection() == GAUCHE){
+		if(character.getDirection() == Direction.GAUCHE){
 			return liste.get(character.getActualFrame() -1);
 		}
-		else if(character.getDirection() == DROITE){
+		else if(character.getDirection() == Direction.DROITE){
 			return liste.get(character.getActualFrame() + frames-1);
 		}
-		else if(character.getDirection() == HAUT){
+		else if(character.getDirection() == Direction.HAUT){
 			return liste.get(character.getActualFrame() + 2*frames-1);
 		}
 		else{
@@ -116,7 +112,7 @@ public class ImageAnimeDirection {
 	
 	public Image getImage(Thunder thunder){
 		if(thunder.getActualFrame() == 2){
-			if(thunder.getTickThunder()%4 == 0){
+			if(thunder.getTickThunder() % 4 == 0){
 				return liste.get(2);
 			}
 			else{
@@ -128,7 +124,7 @@ public class ImageAnimeDirection {
 	
 	public Image getImage(Boss boss){
 		if(boss.getInvincible() == 0){
-			if(boss.getTickInvincible()%2 == 0){
+			if(boss.getTickInvincible() % 2 == 0){
 				return liste.get(frames);
 			}
 		}
@@ -141,13 +137,13 @@ public class ImageAnimeDirection {
 	}
 	
 	public Image getImageAnime(Arrow arrow){
-		if(arrow.getDirection() == GAUCHE){
+		if(arrow.getDirection() == Direction.GAUCHE){
 			return liste.get(arrow.getActualFrame() -1);
 		}
-		else if(arrow.getDirection() == DROITE){
+		else if(arrow.getDirection() == Direction.DROITE){
 			return liste.get(arrow.getActualFrame()  + frames-1);
 		}
-		else if(arrow.getDirection() == HAUT){
+		else if(arrow.getDirection() == Direction.HAUT){
 			return liste.get(arrow.getActualFrame()  + 2*frames-1);
 		}
 		else{
@@ -155,19 +151,19 @@ public class ImageAnimeDirection {
 		}
 	}
 	
-	public List<Image> getImageDirection(int direction){
+	public List<Image> getImageDirection(Direction direction){
 		ArrayList<Image> l = new ArrayList<Image>();
-		if(direction == GAUCHE){
+		if(direction == Direction.GAUCHE){
 			for(int i=0; i< frames;i++){
 				l.add(liste.get(i));
 			}
 		}
-		else if(direction == DROITE){
+		else if(direction == Direction.DROITE){
 			for(int i=0; i< frames;i++){
 				l.add(liste.get(i + frames));
 			}
 		}
-		else if(direction == HAUT){
+		else if(direction == Direction.HAUT){
 			for(int i=0; i< frames;i++){
 				l.add(liste.get(i + 2*frames));
 			}

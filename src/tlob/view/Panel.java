@@ -99,49 +99,33 @@ public class Panel extends JPanel{
 		
 		for(BombDeflagration bombDef : level.getBombDeflagration()) {
 			for(int j = 0; j< bombDef.getUp().size(); j++){
-				if(j == bombDef.getUp().size()-1){
-					g.drawImage(loadIAD.stringToIAD(bombDef.getName()).getImageDirection(2).get(1), bombDef.getXPos()+decX, bombDef.getUp().get(j)+decY,null);
-				}
-				else{
-					g.drawImage(loadIAD.stringToIAD(bombDef.getName()).getImageDirection(2).get(0), bombDef.getXPos()+decX, bombDef.getUp().get(j)+decY,null);
-				}
+				int indice = j == bombDef.getUp().size() - 1 ? 1 : 0;
+				g.drawImage(loadIAD.stringToIAD(bombDef.getName()).getImageDirection(Direction.HAUT).get(1), bombDef.getXPos()+decX, bombDef.getUp().get(j)+decY, null);
 			}
 			for(int j = 0; j< bombDef.getDown().size(); j++){
-				if(j == bombDef.getUp().size()-1){
-					g.drawImage(loadIAD.stringToIAD(bombDef.getName()).getImageDirection(3).get(1), bombDef.getXPos()+decX, bombDef.getDown().get(j)+decY,null);
-				}
-				else{
-					g.drawImage(loadIAD.stringToIAD(bombDef.getName()).getImageDirection(3).get(0), bombDef.getXPos()+decX, bombDef.getDown().get(j)+decY,null);
-				}
+				int indice = j == bombDef.getUp().size() - 1 ? 1 : 0;
+				g.drawImage(loadIAD.stringToIAD(bombDef.getName()).getImageDirection(Direction.BAS).get(indice), bombDef.getXPos()+decX, bombDef.getDown().get(j)+decY, null);
 			}
 			for(int j = 0; j< bombDef.getLeft().size(); j++){
-				if(j==bombDef.getUp().size()-1){
-					g.drawImage(loadIAD.stringToIAD(bombDef.getName()).getImageDirection(0).get(1), bombDef.getLeft().get(j)+decX, bombDef.getYPos()+decY,null);
-				}
-				else{
-					g.drawImage(loadIAD.stringToIAD(bombDef.getName()).getImageDirection(0).get(0), bombDef.getLeft().get(j)+decX, bombDef.getYPos()+decY,null);
-				}
+				int indice = j == bombDef.getUp().size()-1 ? 1 : 0;
+				g.drawImage(loadIAD.stringToIAD(bombDef.getName()).getImageDirection(Direction.GAUCHE).get(1), bombDef.getLeft().get(j)+decX, bombDef.getYPos()+decY, null);
 			}
 			for(int j = 0; j< bombDef.getRight().size(); j++){
-				if(j==bombDef.getUp().size()-1){
-					g.drawImage(loadIAD.stringToIAD(bombDef.getName()).getImageDirection(1).get(1), bombDef.getRight().get(j)+decX, bombDef.getYPos()+decY,null);
-				}
-				else{
-					g.drawImage(loadIAD.stringToIAD(bombDef.getName()).getImageDirection(1).get(0), bombDef.getRight().get(j)+decX, bombDef.getYPos()+decY,null);
-				}
+				int indice = j == bombDef.getUp().size()-1 ? 1 : 0;
+				g.drawImage(loadIAD.stringToIAD(bombDef.getName()).getImageDirection(Direction.DROITE).get(indice), bombDef.getRight().get(j)+decX, bombDef.getYPos()+decY,null);
 			}
 		}
 	}
 	
 	private void paintSolo(Graphics g) {
-		for(int i =0; i<15;i++){
-			for(int j=0;j<15;j++) {
-				g.drawImage(bg,i*40+decX,j*40+decY,null);				
+		for(int i = 0; i < 15; i++){
+			for(int j = 0; j < 15; j++) {
+				g.drawImage(bg, i * 40 + decX, j * 40 + decY,null);				
 			}
 		}
 		for(Decor decor : level.getDecor()) {
 			
-			if(decor.getClass() == Treasure.class){
+			if(decor instanceof Treasure){
 				g.drawImage(loadIAD.stringToIAD(decor.getName()).getImageAnime(decor), decor.getXPos()+decX, decor.getYPos()+decY,null);
 			}
 			else{
@@ -238,34 +222,34 @@ public class Panel extends JPanel{
 		for(BombDeflagration bombDef : level.getBombDeflagration()) {
 			for(int j = 0; j< bombDef.getUp().size(); j++){
 				if(j==bombDef.getUp().size()-1){
-					g.drawImage(loadIAD.stringToIAD(bombDef.getName()).getImageDirection(2).get(1), bombDef.getXPos()+decX, bombDef.getUp().get(j)+decY,null);
+					g.drawImage(loadIAD.stringToIAD(bombDef.getName()).getImageDirection(Direction.HAUT).get(1), bombDef.getXPos()+decX, bombDef.getUp().get(j)+decY,null);
 				}
 				else{
-					g.drawImage(loadIAD.stringToIAD(bombDef.getName()).getImageDirection(2).get(0), bombDef.getXPos()+decX, bombDef.getUp().get(j)+decY,null);
+					g.drawImage(loadIAD.stringToIAD(bombDef.getName()).getImageDirection(Direction.HAUT).get(0), bombDef.getXPos()+decX, bombDef.getUp().get(j)+decY,null);
 				}
 			}
 			for(int j = 0; j< bombDef.getDown().size(); j++){
 				if(j==bombDef.getUp().size()-1){
-					g.drawImage(loadIAD.stringToIAD(bombDef.getName()).getImageDirection(3).get(1), bombDef.getXPos()+decX, bombDef.getDown().get(j)+decY,null);
+					g.drawImage(loadIAD.stringToIAD(bombDef.getName()).getImageDirection(Direction.BAS).get(1), bombDef.getXPos()+decX, bombDef.getDown().get(j)+decY,null);
 				}
 				else{
-					g.drawImage(loadIAD.stringToIAD(bombDef.getName()).getImageDirection(3).get(0), bombDef.getXPos()+decX, bombDef.getDown().get(j)+decY,null);
+					g.drawImage(loadIAD.stringToIAD(bombDef.getName()).getImageDirection(Direction.BAS).get(0), bombDef.getXPos()+decX, bombDef.getDown().get(j)+decY,null);
 				}
 			}
 			for(int j = 0; j< bombDef.getLeft().size(); j++){
 				if(j==bombDef.getUp().size()-1){
-					g.drawImage(loadIAD.stringToIAD(bombDef.getName()).getImageDirection(0).get(1), bombDef.getLeft().get(j)+decX, bombDef.getYPos()+decY,null);
+					g.drawImage(loadIAD.stringToIAD(bombDef.getName()).getImageDirection(Direction.GAUCHE).get(1), bombDef.getLeft().get(j)+decX, bombDef.getYPos()+decY,null);
 				}
 				else{
-					g.drawImage(loadIAD.stringToIAD(bombDef.getName()).getImageDirection(0).get(0), bombDef.getLeft().get(j)+decX, bombDef.getYPos()+decY,null);
+					g.drawImage(loadIAD.stringToIAD(bombDef.getName()).getImageDirection(Direction.GAUCHE).get(0), bombDef.getLeft().get(j)+decX, bombDef.getYPos()+decY,null);
 				}
 			}
 			for(int j = 0; j< bombDef.getRight().size(); j++){
 				if(j==bombDef.getUp().size()-1){
-					g.drawImage(loadIAD.stringToIAD(bombDef.getName()).getImageDirection(1).get(1), bombDef.getRight().get(j)+decX, bombDef.getYPos()+decY,null);
+					g.drawImage(loadIAD.stringToIAD(bombDef.getName()).getImageDirection(Direction.DROITE).get(1), bombDef.getRight().get(j)+decX, bombDef.getYPos()+decY,null);
 				}
 				else{
-					g.drawImage(loadIAD.stringToIAD(bombDef.getName()).getImageDirection(1).get(0), bombDef.getRight().get(j)+decX, bombDef.getYPos()+decY,null);
+					g.drawImage(loadIAD.stringToIAD(bombDef.getName()).getImageDirection(Direction.DROITE).get(0), bombDef.getRight().get(j)+decX, bombDef.getYPos()+decY,null);
 				}
 			}
 		}
@@ -341,7 +325,7 @@ public class Panel extends JPanel{
 				else{
 					g.drawImage(redlinkwin,0,0,null);
 				}						
-			}					
+			}
 		}
 	}
 	

@@ -1,12 +1,14 @@
 package tlob.model;
 
+import java.util.HashMap;
+
 public abstract class  Character implements Tick{
 
 	protected int lifePoint;
 	protected int xPos;
 	protected int yPos;
 	protected int speed;
-	protected int direction; // 0 GAUCHE, 1 DROITE, 2 HAUT, 3 BAS
+	protected Direction direction;
 	private int actualFrame = 1;
 	private String name;
 	private int invincible = 1; // 1 = OFF, 0 = ON
@@ -14,15 +16,16 @@ public abstract class  Character implements Tick{
 	private int frozen = 1;
 	private int tickFrozen = 1;
 	private int t = 0;
-	private int myTick =0;
+	private int myTick = 0;
 	private int tick = 0;
+	
 	private int U = 1;
 	private int D = 1;
 	private int L = 1;
 	private int R = 1;
 	private int player = 0;
 	
-	public  Character(int lifePoint, int xPos, int yPos, int speed, int direction, String name){
+	public  Character(int lifePoint, int xPos, int yPos, int speed, Direction direction, String name){
 		this.lifePoint =  lifePoint;
 		this.xPos = xPos;
 		this.yPos = yPos;
@@ -178,12 +181,12 @@ public abstract class  Character implements Tick{
 		this.speed = speed;
 	}
 	
-	public int getDirection()
+	public Direction getDirection()
 	{ 
 		return direction;
 	}
 	
-	public void setDirection (int direction)
+	public void setDirection (Direction direction)
 	{
 		this.direction = direction;
 	}

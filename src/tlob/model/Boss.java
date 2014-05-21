@@ -8,7 +8,7 @@ public class Boss extends Monster{
 	private int attackCd = 80;
 	private boolean rage = false;
 
-	public Boss (int lifePoint, int xPos, int yPos, int speed,int direction,String name)
+	public Boss (int lifePoint, int xPos, int yPos, int speed, Direction direction,String name)
 	{
 		super(lifePoint, xPos, yPos,speed, direction, name);
 	}

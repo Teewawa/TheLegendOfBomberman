@@ -189,7 +189,7 @@ public class GameInteraction {
 					changeLevel = true;
 					link.setXPos(18*15+10);
 					link.setYPos(35*15);
-					link.setDirection(2);
+					link.setDirection(Direction.HAUT);
 
 				}
 						
@@ -209,8 +209,10 @@ public class GameInteraction {
 				break;
 			}
 			
-			if(touchDecor(link.getXPos(), link.getYPos(),decor.get(i).getXPos(),decor.get(i).getYPos()) != -1 && link.getDirection() == 2
-					&& decor.get(i).getClass() == Treasure.class && ((Treasure)decor.get(i)).isBonusTaken() == false){
+			if(touchDecor(link.getXPos(), link.getYPos(),decor.get(i).getXPos(),decor.get(i).getYPos()) != -1
+					&& link.getDirection() == Direction.HAUT
+					&& decor.get(i).getClass() == Treasure.class
+					&& ((Treasure)decor.get(i)).isBonusTaken() == false){
 				decor.get(i).setActualFrame(2);
 				if(link.getName().contentEquals("res/Link/LinkOpen") == false){
 					link.setActualFrame(1);
@@ -330,25 +332,33 @@ public class GameInteraction {
 			int a = touchBomb(link.getXPos(),link.getYPos(),bomb.get(i).getXPos(),bomb.get(i).getYPos());
 			if(a == 0){
 				link.setR(0);
-				if(link.getDirection() == 1 && link.getGauntlet() == true && bomb.get(i).getPlayer() != -1){
+				if(link.getDirection() == Direction.DROITE
+						&& link.getGauntlet() == true
+						&& bomb.get(i).getPlayer() != -1){
 					bomb.get(i).setDirection(link.getDirection());
 				}
 			}
 			if(a == 1){
 				link.setL(0);
-				if(link.getDirection() == 0 && link.getGauntlet() == true && bomb.get(i).getPlayer() != -1){
+				if(link.getDirection() == Direction.GAUCHE
+						&& link.getGauntlet() == true
+						&& bomb.get(i).getPlayer() != -1){
 					bomb.get(i).setDirection(link.getDirection());
 				}
 			}
 			if(a == 2){
 				link.setD(0);
-				if(link.getDirection() == 3 && link.getGauntlet() == true && bomb.get(i).getPlayer() != -1){
+				if(link.getDirection() == Direction.BAS
+						&& link.getGauntlet() == true
+						&& bomb.get(i).getPlayer() != -1){
 					bomb.get(i).setDirection(link.getDirection());
 				}
 			}
 			if(a == 3){
 				link.setU(0);
-				if(link.getDirection() == 2 && link.getGauntlet() == true && bomb.get(i).getPlayer() != -1){
+				if(link.getDirection() == Direction.HAUT
+						&& link.getGauntlet() == true
+						&& bomb.get(i).getPlayer() != -1){
 					bomb.get(i).setDirection(link.getDirection());
 				}
 			}
@@ -359,12 +369,12 @@ public class GameInteraction {
 				
 				if(bonus.get(i).getName() == "res/Rubis") { 
 					Sound soundRupee = new Sound();
-					soundRupee.playSound("rupee");	
+					soundRupee.play("rupee");	
 				}
 				
 				else {
 					Sound soundBonus = new Sound();
-					soundBonus.playSound("bonus");
+					soundBonus.play("bonus");
 				}
 				
 				bonus.remove(i);
@@ -407,76 +417,76 @@ public class GameInteraction {
 	
 	public void bombInteraction(Bomb bomb){
 		for(int i = 0; i < this.bomb.size(); i++){
-			if(bomb.getDirection() == 0){
+			if(bomb.getDirection() == Direction.GAUCHE){
 				if(touchDecorB(bomb.getXPos()-15, bomb.getYPos(), this.bomb.get(i).getXPos(), this.bomb.get(i).getYPos()) != -1
 						&& this.bomb.get(i).getXPos() != bomb.getXPos()){ //&& bomb.get(i).getYPos() != getYPos()){
 					bomb.setXPos(this.bomb.get(i).getXPos()+40);
-					bomb.setDirection(-1);
+					bomb.setDirection(null);
 				}
 			}
-			if(bomb.getDirection() == 1){
+			if(bomb.getDirection() == Direction.DROITE){
 				if(touchDecorB(bomb.getXPos()+15, bomb.getYPos(),this.bomb.get(i).getXPos(),this.bomb.get(i).getYPos()) != -1
 						&& this.bomb.get(i).getXPos() != bomb.getXPos()){
 					bomb.setXPos(this.bomb.get(i).getXPos()-40);
-					bomb.setDirection(-1);
+					bomb.setDirection(null);
 				}
 			}
-			if(bomb.getDirection() == 2){
+			if(bomb.getDirection() == Direction.HAUT){
 				if(touchDecorB(bomb.getXPos(), bomb.getYPos()-15,this.bomb.get(i).getXPos(),this.bomb.get(i).getYPos()) != -1
 						&& this.bomb.get(i).getYPos() != bomb.getYPos()){
 					bomb.setYPos(this.bomb.get(i).getYPos()+40);
-					bomb.setDirection(-1);
+					bomb.setDirection(null);
 				}
 			}
-			if(bomb.getDirection() == 3){
+			if(bomb.getDirection() == Direction.BAS){
 				if(touchDecorB(bomb.getXPos(), bomb.getYPos()+15,this.bomb.get(i).getXPos(),this.bomb.get(i).getYPos()) != -1
 						&& this.bomb.get(i).getYPos() != bomb.getYPos()){
 					bomb.setYPos(this.bomb.get(i).getYPos()-40);
-					bomb.setDirection(-1);
+					bomb.setDirection(null);
 				}
 			}
 		}
 		if(bomb.getPlayer() != -1){
 			for(int i = 0; i < monster.size(); i++){
 				if(touchDecorB(bomb.getXPos(), bomb.getYPos(),monster.get(i).getXPos(),monster.get(i).getYPos()) != -1){
-					bomb.setDirection(-1);
+					bomb.setDirection(null);
 				}
 			}
 		}
 		
 		for(int i = 0; i < link.size(); i++){
 			if(touchDecorB(bomb.getXPos(), bomb.getYPos(),link.get(i).getXPos(),link.get(i).getYPos()) != -1){
-				bomb.setDirection(-1);
+				bomb.setDirection(null);
 			}
 		}
 		
 		for(int i = 0; i < decor.size(); i++){
-			if(bomb.getDirection() == 0){
+			if(bomb.getDirection() == Direction.GAUCHE){
 				if(touchDecorB(bomb.getXPos()-15, bomb.getYPos(),decor.get(i).getXPos(),decor.get(i).getYPos()) != -1
 						&& decor.get(i).getClass() != Floor.class){
 					bomb.setXPos(decor.get(i).getXPos()+45);
-					bomb.setDirection(-1);
+					bomb.setDirection(null);
 				}
 			}
-			if(bomb.getDirection() == 1){
+			if(bomb.getDirection() == Direction.DROITE){
 				if(touchDecorB(bomb.getXPos()+5, bomb.getYPos(),decor.get(i).getXPos(),decor.get(i).getYPos()) != -1
 						&& decor.get(i).getClass() != Floor.class){
 					bomb.setXPos(decor.get(i).getXPos()-35);
-					bomb.setDirection(-1);
+					bomb.setDirection(null);
 				}
 			}
-			if(bomb.getDirection() == 2){
+			if(bomb.getDirection() == Direction.HAUT){
 				if(touchDecorB(bomb.getXPos(), bomb.getYPos()-15,decor.get(i).getXPos(),decor.get(i).getYPos()) != -1
 						&& decor.get(i).getClass() != Floor.class){
 					bomb.setYPos(decor.get(i).getYPos()+45);
-					bomb.setDirection(-1);
+					bomb.setDirection(null);
 				}
 			}
-			if(bomb.getDirection() == 3){
+			if(bomb.getDirection() == Direction.BAS){
 				if(touchDecorB(bomb.getXPos(), bomb.getYPos()+5,decor.get(i).getXPos(),decor.get(i).getYPos()) != -1
 						&& decor.get(i).getClass() != Floor.class){
 					bomb.setYPos(decor.get(i).getYPos()-35);
-					bomb.setDirection(-1);
+					bomb.setDirection(null);
 				}
 			}
 		}
@@ -505,7 +515,7 @@ public class GameInteraction {
 						decor.remove(i);
 						decor.get(i-1).setName("res" + map.getEnvironment() + "/BrokenJar");
 						Sound soundJar = new Sound();
-						soundJar.playSound("jarbroken");
+						soundJar.play("jarbroken");
 					}
 					bombDef.setL(0);
 				}
@@ -526,7 +536,7 @@ public class GameInteraction {
 						decor.remove(i);
 						decor.get(i-1).setName("res" + map.getEnvironment() + "/BrokenJar");
 						Sound soundJar = new Sound();
-						soundJar.playSound("jarbroken");
+						soundJar.play("jarbroken");
 					}
 					bombDef.setR(0);
 				}
@@ -548,7 +558,7 @@ public class GameInteraction {
 						decor.remove(i);
 						decor.get(i-1).setName("res" + map.getEnvironment() + "/BrokenJar");
 						Sound soundJar = new Sound();
-						soundJar.playSound("jarbroken");						
+						soundJar.play("jarbroken");						
 					}
 					bombDef.setU(0);
 					}
@@ -570,7 +580,7 @@ public class GameInteraction {
 						decor.remove(i);
 						decor.get(i-1).setName("res" + map.getEnvironment() + "/BrokenJar");
 						Sound soundJar = new Sound();
-						soundJar.playSound("jarbroken");
+						soundJar.play("jarbroken");
 					}
 					bombDef.setD(0);
 				}
@@ -695,20 +705,20 @@ public class GameInteraction {
 							&& (this.monster.get(i).getClass() == Underground.class && ((Underground) this.monster.get(i)).getUnderground() == true)
 							|| this.monster.get(i).getClass() == MovingTrap.class){
 						if(touchDecor(monster.getXPos()-monster.getSpeed(),monster.getYPos(),this.monster.get(i).getXPos(),this.monster.get(i).getYPos()) != -1
-								&& monster.getDirection() == 0){
-							monster.setDirection(1);
+								&& monster.getDirection() == Direction.GAUCHE){
+							monster.setDirection(monster.getDirection().inverse());
 						}
 						if(touchDecor(monster.getXPos()+monster.getSpeed(),monster.getYPos(),this.monster.get(i).getXPos(),this.monster.get(i).getYPos()) != -1
-								&& monster.getDirection() == 1){
-							monster.setDirection(0);
+								&& monster.getDirection() == Direction.DROITE){
+							monster.setDirection(monster.getDirection().inverse());
 						}
 						if(touchDecor(monster.getXPos(),monster.getYPos()-monster.getSpeed(),this.monster.get(i).getXPos(),this.monster.get(i).getYPos()) != -1
-								&& monster.getDirection() == 2){
-							monster.setDirection(3);
+								&& monster.getDirection() == Direction.HAUT){
+							monster.setDirection(monster.getDirection().inverse());
 						}
 						if(touchDecor(monster.getXPos(),monster.getYPos()-monster.getSpeed(),this.monster.get(i).getXPos(),this.monster.get(i).getYPos()) != -1
-								&& monster.getDirection() == 3){
-							monster.setDirection(2);
+								&& monster.getDirection() == Direction.BAS){
+							monster.setDirection(monster.getDirection().inverse());
 						}
 					}
 				}
@@ -756,121 +766,50 @@ public class GameInteraction {
 
 			}
 			
-			if(monster.getDirection() == 0){
+			if(monster.getDirection() == Direction.GAUCHE){
 				if(monster.getL() == 0 && monster.getU() == 0 && monster.getD() == 0){
-					monster.setDirection(1);
+					monster.setDirection(Direction.DROITE);
 				}
 				else if(monster.getU() == 0 && monster.getD() == 0){
 
 				}
 				else{
-					List<Integer> dir = new ArrayList<Integer>();
-					if(monster.getL() == 1){
-						dir.add(0);
-					}
-					if(monster.getR() == 1){
-						dir.add(1);
-					}
-					if(monster.getU() == 1){
-						dir.add(2);
-					}
-					if(monster.getD() == 1){
-						dir.add(3);
-					}
-					java.util.Random r=new java.util.Random();
-					int random = r.nextInt(dir.size()+1);
-					monster.setDirection(random);
+					
 					
 				}
 			}
-			else if(monster.getDirection() == 1){
-				if(monster.getR() == 0 && monster.getU() == 0 && monster.getD() == 0){
-					monster.setDirection(0);
-				}
-				else if(monster.getU() == 0 && monster.getD() == 0){
-
-				}
-				else{
-					List<Integer> dir = new ArrayList<Integer>();
-					if(monster.getL() == 1){
-						dir.add(0);
-					}
-					if(monster.getR() == 1){
-						dir.add(1);
-					}
-					if(monster.getU() == 1){
-						dir.add(2);
-					}
-					if(monster.getD() == 1){
-						dir.add(3);
-					}
-					java.util.Random r=new java.util.Random() ;
-					int random = r.nextInt(dir.size()+1);
-					monster.setDirection(random);
-					
-				}
+			else if(monster.getDirection() == Direction.GAUCHE){
+				if(monster.getR() == 0 && monster.getU() == 0 && monster.getD() == 0)
+					monster.setDirection(Direction.GAUCHE);
+				
+				else if(monster.getU() != 0 || monster.getD() != 0)
+					monster.setRandomDirection();
 			}
-			else if(monster.getDirection() == 2){
+			else if(monster.getDirection() == Direction.HAUT){
 				if(monster.getU() == 0 && monster.getL() == 0 && monster.getR() == 0){
-					monster.setDirection(3);
+					monster.setDirection(Direction.BAS);
 				}
-				else if(monster.getL() == 0 && monster.getR() == 0){
-
-				}
-				else{
-					List<Integer> dir = new ArrayList<Integer>();
-					if(monster.getL() == 1){
-						dir.add(0);
-					}
-					if(monster.getR() == 1){
-						dir.add(1);
-					}
-					if(monster.getU() == 1){
-						dir.add(2);
-					}
-					if(monster.getD() == 1){
-						dir.add(3);
-					}
-					java.util.Random r=new java.util.Random() ;
-					int random = r.nextInt(dir.size()+1);
-					monster.setDirection(random);
+				else if(monster.getL() != 0 || monster.getR() != 0){
+					monster.setRandomDirection();
 				}
 			}
 			else{
 				if(monster.getD() == 0 && monster.getL() == 0 && monster.getR() == 0){
-					monster.setDirection(2);
+					monster.setDirection(Direction.HAUT);
 				}
 				else if(monster.getL() == 0 && monster.getR() == 0){
-
-				}
-				else{
-					List<Integer> dir = new ArrayList<Integer>();
-					if(monster.getL() == 1){
-						dir.add(0);
-					}
-					if(monster.getR() == 1){
-						dir.add(1);
-					}
-					if(monster.getU() == 1){
-						dir.add(2);
-					}
-					if(monster.getD() == 1){
-						dir.add(3);
-					}
-					java.util.Random r=new java.util.Random() ;
-					int random = r.nextInt(dir.size()+1);
-					monster.setDirection(random);
+					monster.setRandomDirection();
 				}
 			}
 		}
 		monster.move();
 	}
 	
-		private int fireDirection(Monster monster){
-		int direction = -1;
+	private Direction fireDirection(Monster monster){
+		Direction direction = null;
 		int x = 0;
 		int y = 0;
-		if(monster.getXPos()%40 == 0 && monster.getYPos()%40 == 0){
+		if(monster.getXPos() % 40 == 0 && monster.getYPos() % 40 == 0){
 			for(int i = 0; i < link.size(); i++){
 				if(link.get(i).getXPos()%40 <= 20){
 					x = link.get(i).getXPos() - link.get(i).getXPos()%40;
@@ -886,50 +825,44 @@ public class GameInteraction {
 				}
 				if(Math.abs(link.get(i).getXPos() - monster.getXPos()) < 40){
 					if(link.get(i).getYPos() > monster.getYPos()){
-						direction = 3;
+						direction = Direction.HAUT;
 					}
 					if(link.get(i).getYPos() < monster.getYPos()){
-						direction = 2;
+						direction = Direction.BAS;
 					}
 				}
 				if(Math.abs(link.get(i).getYPos() - monster.getYPos()) < 40){
 					if(link.get(i).getXPos() > monster.getXPos()){
-						direction = 1;
+						direction = Direction.DROITE;
 					}
 					if(link.get(i).getXPos() < monster.getXPos()){
-						direction = 0;
+						direction = Direction.GAUCHE;
 					}
 				}
 			}
-			if(direction == 0){
+			if(direction == Direction.GAUCHE){
 				for(int k = x/40; k < monster.getXPos()/40; k++){
 					for(int i = 0; i < decor.size(); i++){
 						if(decor.get(i).getClass() != Floor.class && decor.get(i).getXPos() == k*40 && decor.get(i).getYPos() == monster.getYPos()){
-							if(direction != -1){
-							}
-							direction = -1;
+							direction = null;
 						}
 					}
 				}
 			}
-			else if(direction == 1){
+			else if(direction == Direction.DROITE){
 				for(int k = monster.getXPos()/40+1; k < x/40; k++){
 					for(int i = 0; i < decor.size(); i++){
 						if(decor.get(i).getClass() != Floor.class && decor.get(i).getXPos() == k*40 && decor.get(i).getYPos() == monster.getYPos()){
-							if(direction != -1){
-							}
-							direction = -1;
+							direction = null;
 						}
 					}
 				}
 			}
-			else if(direction == 2){
+			else if(direction == Direction.HAUT){
 				for(int k = y/40; k < monster.getYPos()/40; k++){
 					for(int i = 0; i < decor.size(); i++){
 						if(decor.get(i).getClass() != Floor.class && decor.get(i).getXPos() == monster.getXPos() && decor.get(i).getYPos() == k*40){
-							if(direction != -1){
-							}
-							direction = -1;
+							direction = null;
 						}
 					}
 				}
@@ -938,9 +871,7 @@ public class GameInteraction {
 				for(int k = monster.getYPos()/40+1; k < y/40; k++){
 					for(int i = 0; i < decor.size(); i++){
 						if(decor.get(i).getClass() != Floor.class && decor.get(i).getXPos() == monster.getXPos() && decor.get(i).getYPos() == k*40){
-							if(direction != -1){
-							}
-							direction = -1;
+							direction = null;
 						}
 					}
 				}
@@ -958,12 +889,12 @@ public class GameInteraction {
 		}
 		else if(monster.getClass() == Ranged.class){
 			monster.cdTick(3);
-			if(fireDirection(monster) != -1 && monster.getCooldown() > 40){
+			if(fireDirection(monster) != null && monster.getCooldown() > 40){
 				monster.setAction(true);
 				monster.setDirection(fireDirection(monster));
 				monster.setActualFrame(1);
 				monster.setName("res/Monster/RangedArrow");
-				}
+			}
 			if(monster.getAction() == true){
 				monster.tick(5);
 				if(monster.getTime() == 8){
@@ -980,11 +911,11 @@ public class GameInteraction {
 		}
 		else if(monster.getClass() == Bomber.class){
 			monster.cdTick(3);
-			if(fireDirection(monster) != -1 && monster.getCooldown() > 40){
+			if(fireDirection(monster) != null && monster.getCooldown() > 40){
 				monster.setAction(true);
 				monster.setDirection(fireDirection(monster));
 				monster.setName("res/Monster/BomberThrow");
-				}
+			}
 			if(monster.getAction() == true){
 				((Bomber) monster).bombTick(4,8);
 				if(((Bomber) monster).getBombFrame() == 4){
@@ -1002,44 +933,45 @@ public class GameInteraction {
 			}
 				
 		}
-		else if(monster.getClass() == Boss.class){
+		else if(monster instanceof Boss){
+			Boss boss = (Boss)monster;
 			if(monster.getLifePoint() < 3 && ((Boss) monster).getRage() == false){
-				((Boss) monster).setAttackCd(((Boss) monster).getAttackCd()/2);
-				((Boss) monster).setBossTick(0);
+				boss.setAttackCd(((Boss) monster).getAttackCd()/2);
+				boss.setBossTick(0);
 				monster.setCooldown(0);
-				((Boss) monster).setRage(true);
+				boss.setRage(true);
 			}
-			if(((Boss) monster).getRage() == true){
-				((Boss) monster).tickBoss(5);
+			if(boss.getRage() == true){
+				boss.tickBoss(5);
 			}
 			else{
-				((Boss) monster).tickBoss(10);
+				boss.tickBoss(10);
 			}
 			monster.cdTick(1);
-			if(monster.getCooldown() == ((Boss) monster).getAttackCd()){
-				((Boss) monster).fireBall(fireBall, link.get(0));
+			if(monster.getCooldown() == boss.getAttackCd()){
+				boss.fireBall(fireBall, link.get(0));
 			}
-			if(monster.getCooldown() == (((Boss) monster).getAttackCd() + 2*((Boss) monster).getAttackCd()/10)){
-				((Boss) monster).fireBall(fireBall, link.get(0));
+			if(monster.getCooldown() == (boss.getAttackCd() + 2*((Boss) monster).getAttackCd()/10)){
+				boss.fireBall(fireBall, link.get(0));
 			}
-			if(monster.getCooldown() == (((Boss) monster).getAttackCd() + 4*((Boss) monster).getAttackCd()/10)){
-				((Boss) monster).fireBall(fireBall, link.get(0));
+			if(monster.getCooldown() == (boss.getAttackCd() + 4*((Boss) monster).getAttackCd()/10)){
+				boss.fireBall(fireBall, link.get(0));
 			}
-			if(monster.getCooldown() == ((Boss) monster).getAttackCd()*2){
-				((Boss) monster).thunder(thunder, link.get(0));
+			if(monster.getCooldown() == boss.getAttackCd() * 2){
+				boss.thunder(thunder, link.get(0));
 				thunder.get(thunder.size()-1).appear(thunder.get(thunder.size()-1).getXPos(), thunder.get(thunder.size()-1).getYPos());
 			}
-			if(monster.getCooldown() == ((Boss) monster).getAttackCd()*3){
-				((Boss) monster).fireBall2(fireBall);
+			if(monster.getCooldown() == boss.getAttackCd() * 3){
+				boss.fireBall2(fireBall);
 			}
-			if(monster.getCooldown() == ((Boss) monster).getAttackCd()*4){
+			if(monster.getCooldown() == boss.getAttackCd() * 4){
 				teleportation(monster);
 				monster.setCooldown(0);
 			}
 
 		}
 		else if(monster.getClass() == Underground.class){
-			if(fireDirection(monster) != -1 && Math.abs(monster.getXPos() - link.get(0).getXPos()) < 80 && Math.abs(monster.getYPos() - link.get(0).getYPos()) < 80 
+			if(fireDirection(monster) != null && Math.abs(monster.getXPos() - link.get(0).getXPos()) < 80 && Math.abs(monster.getYPos() - link.get(0).getYPos()) < 80 
 					&& ((Underground) monster).getUnderground() == true){
 				((Underground) monster).setUnderground(false);
 				monster.setInv(1);

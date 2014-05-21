@@ -4,7 +4,7 @@ public class Bomb extends Item {
 	
 	private int time;
 	private int mytick;
-	private int direction = -1;
+	private Direction direction = null;
 	private int player;
 	
 	public Bomb(int xPos, int yPos, String name, int player)
@@ -17,11 +17,11 @@ public class Bomb extends Item {
 		return this.player;
 	}
 	
-	public int getDirection(){
+	public Direction getDirection(){
 		return this.direction;
 	}
 	
-	public void setDirection(int d){
+	public void setDirection(Direction d){
 		this.direction = d;
 	}
 	
@@ -43,17 +43,11 @@ public class Bomb extends Item {
 	}
 	
 	public void move(){
-		if(direction == 0){
-			setXPos(getXPos() - 5);
-		}
-		if(direction == 1){
-			setXPos(getXPos() + 5);
-		}
-		if(direction == 2){
-			setYPos(getYPos() - 5); //panel 
-		}
-		if(direction == 3){
-			setYPos(getYPos() + 5); //panel
+		if(direction != null) {
+			if(direction.dx != 0)
+				setXPos(getXPos() + direction.dx * 5);
+			if(direction.dy != 0)
+				setYPos(getYPos() + direction.dy * 5);
 		}
 	}
 	

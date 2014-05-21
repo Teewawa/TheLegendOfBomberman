@@ -9,12 +9,12 @@ public class Link extends Character {
 	private int rangeBomb = 1;
 	private int numberArrow = 3;
 	private boolean gauntlet = false;
-	private int staff=-1; //0=fire //1=ice
+	private int staff = -1; //0=fire //1=ice
 	private int numberCoin = 0;
 	private int maxLife = 3;
 
 
-	public Link (int lifePoint, int xPos, int yPos, int speed,int direction, String image, int player)
+	public Link (int lifePoint, int xPos, int yPos, int speed, Direction direction, String image, int player)
 	{
 		super(lifePoint, xPos, yPos, speed, direction, image);
 		setPlayer(player);
@@ -88,63 +88,43 @@ public class Link extends Character {
 		this.numberCoin=numberCoin;
 	}
 	
-	public void moveUp ()
-	
+	public void move(Direction d)
 	{
-		direction = 2;
-		setYPos(yPos - getFrozen()*getU()*speed);
+		direction = d;
+		if(d.dx != 0)
+			setXPos(xPos + d.dx * getFrozen() * getR() * speed);
+		if(d.dy != 0)
+			setYPos(yPos + d.dy * getFrozen() * getU() * speed);
 		tick(6,5);
 	}
 	
-	public void moveDown ()
-	{
-		direction = 3;
-		setYPos(yPos + getFrozen()*getD()*speed);
-		tick(6,5);
-	}
-	
-	public void moveRight ()
-	{
-		direction = 1;
-		setXPos(xPos + getFrozen()*getR()*speed);
-		tick(6,5);
-	}
-	
-	public void moveLeft ()
-	{
-		direction = 0;
-		setXPos(xPos - getFrozen()*getL()*speed);
-		tick(6,5);
-	}
-	
-	public List<Bomb> setBomb(List<Bomb> liste)
+	public void setBomb(List<Bomb> liste)
 	{
 		int x,y;
 		int k = 1;
-		if(xPos%40 <= 20){
-			x = xPos - xPos%40;
+		if(xPos % 40 <= 20){
+			x = xPos - xPos % 40;
 		}
 		else{
-			x = xPos + 40 - xPos%40;
+			x = xPos + 40 - xPos % 40;
 		}
 		if(yPos%40 <= 20){
-			y = yPos - yPos%40;
+			y = yPos - yPos % 40;
 		}
 		else{
-			y = yPos + 40 - yPos%40;
+			y = yPos + 40 - yPos % 40;
 		}
-		for(int i = 0; i < liste.size(); i++){
-			if(x + 5 == liste.get(i).getXPos() && y + 5 == liste.get(i).getYPos()){
+		for(Bomb b : liste) {
+			if(x + 5 == b.getXPos() && y + 5 == b.getYPos()){
 				k = 0;
 			}
 		}
 		if (k == 1 && getInvincible() == 1){
 			liste.add( new Bomb(x+5, y+5, "res/Bomb", getPlayer())) ;
 		}
-		return liste;
 	}
 	
-	public List<Arrow> fireArrow(List<Arrow> liste){
+	public void fireArrow(List<Arrow> liste){
 		
 		if(numberArrow > 0){
 			if(getActualFrame() != 1 && frameArrow == 0){
@@ -153,16 +133,12 @@ public class Link extends Character {
 			}
 			
 			if(getPlayer() == 0) {
-				
 				setName("res/Link/LinkArrow");
 			}
 			
 			else { 
-				
 				setName("res/RedLink/RedLinkArrow");
-			
 			}
-			
 			
 			tick(6,5);
 			
@@ -172,6 +148,5 @@ public class Link extends Character {
 				numberArrow--;
 			}
 		}
-		return liste;
 	}
 }

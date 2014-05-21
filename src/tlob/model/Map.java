@@ -57,32 +57,32 @@ public class Map {
 	
 	public String getLevel()
 	{
-	return level;
+		return level;
 	}
 	
 	public void setLevel(String level)
 	{
-	this.level = level;
+		this.level = level;
 	}
 	
 	public String getRoomLine()
 	{
-	return roomLine;
+		return roomLine;
 	}
 	
 	public void setRoomLine(String roomLine)
 	{
-	this.roomLine = roomLine;
+		this.roomLine = roomLine;
 	}
 	
 	public String getRoomColumn()
 	{
-	return roomColumn;
+		return roomColumn;
 	}
 	
 	public void setRoomColumn(String roomColumn)
 	{
-	this.roomColumn = roomColumn;
+		this.roomColumn = roomColumn;
 	}
 	
 	public char[][] loadMap(FileInputStream fis)
@@ -127,30 +127,24 @@ public class Map {
 public char[][] loadRoom(){
 	
 	FileInputStream fis = null;
-	File f =new File("res/"+level+"-"+roomLine+"-"+roomColumn+"copy.txt");
+	
+	File file1 = new File("res/" + level + "-" + roomLine + "-" + roomColumn + "copy.txt");
+	File file2 = new File("res/" + level + "-" + roomLine + "-" + roomColumn + ".txt");
 	char[][] tableau = new char[16][16];
 	
 	try{
-		if (f.exists()){
-			fis = new FileInputStream(new File("res/"+level+"-"+roomLine+"-"+roomColumn+"copy.txt"));
-			tableau = loadMap(fis);
-		}
-		else{
-			fis = new FileInputStream(new File("res/"+level+"-"+roomLine+"-"+roomColumn+".txt"));
-			tableau = loadMap(fis);
-			
-		}
+		fis = new FileInputStream(file1.exists() ? file1 : file2);
+		tableau = loadMap(fis);
 		
-		} catch(FileNotFoundException e){
+	} catch(FileNotFoundException e){
+		e.printStackTrace();
+		
+	} finally {
+		try{
+			if(fis != null)
+				fis.close();
+		} catch (IOException e){
 			e.printStackTrace();
-			
-		} finally{
-			try{
-				if(fis != null)
-					fis.close();
-				
-				} catch (IOException e){
-					e.printStackTrace();
 		} 
 	} 
 	return tableau;
@@ -372,31 +366,31 @@ public ArrayList<Decor> mapToListDecor(char[][] map) {
 			
 		ArrayList<Monster> monster = new ArrayList<Monster>();
 		for (int i = 0; i < map.length; i++){
-			for (int j = 0; j < map[i].length;j++)
+			for (int j = 0; j < map[i].length;j++) {
 				switch(map[i][j]){
 					case 'q':
-						monster.add(new Ranged(1,40*i,40*j,1,3,"res/Monster/RangedRun")); //Ranged
+						monster.add(new Ranged(1, 40*i, 40*j, 1, Direction.BAS,"res/Monster/RangedRun")); //Ranged
 						break;
 					case 's':
-						monster.add(new Bomber(2,40*i,40*j,1,3,"res/Monster/BomberRun")); //Bomber
+						monster.add(new Bomber(2, 40*i, 40*j, 1, Direction.BAS, "res/Monster/BomberRun")); //Bomber
 						break;
 					case 'd':
-						monster.add(new Melee(2,40*i,40*j,1,3,"res/Monster/MeleeRun"));
+						monster.add(new Melee(2,40*i,40*j,1, Direction.BAS, "res/Monster/MeleeRun"));
 						break;
 					case 'f':
-						monster.add(new Underground(1,40*i,40*j,4,3,"res/Monster/hidden")); //Underground
+						monster.add(new Underground(1, 40*i, 40*j,4, Direction.BAS, "res/Monster/hidden")); //Underground
 						break;
 					case '7':
-						monster.add(new MovingTrap(1,40*i,40*j,2,3,"res/Monster/Trap")); //Underground
+						monster.add(new MovingTrap(1, 40*i, 40*j,2, Direction.BAS, "res/Monster/Trap")); //Underground
 						break;
 					case '.':
-						monster.add(new Boss(5,i*40, j*40,2,2,"res/Monster/boss"));
+						monster.add(new Boss(5,i*40, j*40,2, Direction.HAUT, "res/Monster/boss"));
 						break;
-						}
-
-					}
-	return monster;
-}
+				}
+			}
+		}
+		return monster;
+	}
 	
 public char[][] listToMap(List<Decor> decor, List<Monster> monster){
 	char[][] map = new char[16][16];

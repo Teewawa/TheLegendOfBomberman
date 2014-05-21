@@ -1,5 +1,10 @@
 package tlob.model;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Random;
+
 public class Monster extends Character {
 	
 	private int initialXPos;
@@ -9,7 +14,7 @@ public class Monster extends Character {
 	private int tick = 0;
 	private boolean spawner = false;
 
-	public Monster (int lifePoint, int xPos, int yPos, int speed,int direction,String name)
+	public Monster (int lifePoint, int xPos, int yPos, int speed, Direction direction,String name)
 	{
 		super (lifePoint, xPos, yPos, speed, direction, name);
 		this.initialXPos = xPos;
@@ -33,23 +38,33 @@ public class Monster extends Character {
 		this.initialYPos = initialYPos;
 	}
 	
+	public void setRandomDirection() {
+		List<Direction> dir = new ArrayList<Direction>();
+		if(getL() == 1)
+			dir.add(Direction.GAUCHE);
+		
+		if(getR() == 1)
+			dir.add(Direction.DROITE);
+		
+		if(getU() == 1)
+			dir.add(Direction.HAUT);
+		
+		if(getD() == 1)
+			dir.add(Direction.BAS);
+		
+		int i = new Random().nextInt(dir.size());
+		setDirection( dir.get(i) );
+	}
+	
 	public void move()
 
 	{
-		if(direction == 0){
-			setXPos(getXPos() - getFrozen()*getL()*speed);
-			tick(4,5);
-		}
-		if(direction == 1){
-			setXPos(getXPos() + getFrozen()*getR()*speed);
-			tick(4,5);
-		}
-		if(direction == 2){
-			setYPos(getYPos() - getFrozen()*getU()*speed);
-			tick(4,5);
-		}
-		if(direction == 3){
-			setYPos(getYPos() + getFrozen()*getD()*speed);
+		if(direction != null)
+		{
+			if(direction.dx != 0)
+				setXPos(getXPos() + direction.dx * getFrozen() * getL() * speed);
+			if(direction.dy != 0)
+				setXPos(getXPos() + direction.dy * getFrozen() * getL() * speed);
 			tick(4,5);
 		}
 	}
